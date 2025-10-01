@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "retarget.h"
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,14 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+bool ledBlinking = true;
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+if (GPIO_Pin == B1_Pin) {
+// Insert code to be executed in the interrupt
+    ledBlinking = !ledBlinking;
+}
+}
 
 /* USER CODE END 0 */
 
@@ -65,6 +74,7 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -96,14 +106,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == 1) {
-		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-		  HAL_Delay(500);
-		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-		  HAL_Delay(500);
-	  }
+
+
+
+    while (1)
+      {
+
+        // Gestion de la LED
+        if (ledBlinking) {
+            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+            HAL_Delay(500);
+        } else {
+            HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+        }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -173,8 +188,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
