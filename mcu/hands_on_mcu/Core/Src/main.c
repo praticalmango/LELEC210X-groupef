@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usart.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -57,13 +58,19 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-bool ledBlinking = true;
+volatile bool ledBlinking = true;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-if (GPIO_Pin == B1_Pin) {
-// Insert code to be executed in the interrupt
-    ledBlinking = !ledBlinking;
-}
+	if (GPIO_Pin == B1_Pin) {
+	        ledBlinking = !ledBlinking;
+
+	        if (ledBlinking) {
+	            HAL_TIM_OC_Start_IT(&htim4, TIM_CHANNEL_2);
+	        } else {
+	            HAL_TIM_OC_Stop_IT(&htim4, TIM_CHANNEL_2);
+	            //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+	        }
+	    }
 }
 
 /* USER CODE END 0 */
@@ -98,6 +105,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_LPUART1_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);
   printf("Hello world!\r\n");
@@ -111,14 +119,10 @@ int main(void)
 
     while (1)
       {
+    	// à décommenter ou pas pour demo
+    	//__WFI();
+    	//HAL_Delay(500);
 
-        // Gestion de la LED
-        if (ledBlinking) {
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-            HAL_Delay(500);
-        } else {
-            HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-        }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
