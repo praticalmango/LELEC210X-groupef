@@ -19,7 +19,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "usart.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -100,6 +103,7 @@ uint32_t get_signal_power(uint16_t *buffer, size_t len){
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -122,7 +126,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_LPUART1_UART_Init();
+  MX_ADC1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);
   printf("Hello world!\r\n");
@@ -135,14 +142,30 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	      // Vérifie si le bouton utilisateur a été pressé (flag mis à jour par HAL_GPIO_EXTI_Callback)
+	      if (state == 1)
+	      {
+	          state = 0;  // Réinitialise le flag pour éviter de relancer plusieurs fois
+
+	          printf("Starting one-shot ADC sampling (256 samples)...\r\n");
+
+	          // Démarre le timer de base (TIM3) — il déclenche les conversions ADC
+	          HAL_TIM_Base_Start(&htim3);
+
+	          // Démarre la conversion ADC avec DMA (écrit 256 valeurs dans ADCBuffer)
+	          if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADCBuffer, ADC_BUF_SIZE) != HAL_OK)
+	          {
+	              printf("Error starting ADC DMA!\r\n");
+	          }
+	      }
+
+	      // Petite pause pour éviter de poller trop vite
+	      HAL_Delay(100);
+	  }
+
   /* USER CODE END 3 */
 }
 
@@ -208,8 +231,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
