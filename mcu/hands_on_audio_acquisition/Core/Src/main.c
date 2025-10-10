@@ -86,7 +86,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
             //stop_requested = 0;
 
             // Start the timer (triggers ADC conversions)
-        	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+
 
             HAL_TIM_Base_Start(&htim3);
 
@@ -118,6 +118,7 @@ void hex_encode(char* s, const uint8_t* buf, size_t len) {
 
 void print_buffer(uint16_t *buffer) {
 	hex_encode(hex_encoded_buffer, (uint8_t*)buffer, 2*ADC_BUF_SIZE);
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 	printf("SND:HEX:%s\r\n", hex_encoded_buffer);
 	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
