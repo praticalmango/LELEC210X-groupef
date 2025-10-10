@@ -39,6 +39,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC_BUF_SIZE 256
+#define POWER_THRESHOLD 50
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -94,6 +95,44 @@ uint32_t get_signal_power(uint16_t *buffer, size_t len){
 		sum2 += (uint64_t) buffer[i]*(uint64_t) buffer[i];
 	}
 	return (uint32_t)(sum2/len - sum*sum/len/len);
+}
+
+volatile uint8_t stop_requested = 0;  // Used to stop after a high-power detection
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        uint32_t power = get_signal_power((uint16_t *)ADCData1, ADC_BUF_SIZE);
+        printf("[Half] Power = %lu\r\n", power);
+
+        if (power > POWER_THRESHOLD)
+        {
+            stop_requested = 1; // will stop after finishing current buffer
+        }
+    }
+}
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        uint32_t power = get_signal_power((uint16_t *)ADCData2, ADC_BUF_SIZE);
+        printf("[Full] Power = %lu\r\n", power);
+
+        if (stop_requested)
+        {
+            printf("Power threshold exceeded! Stopping sampling...\r\n");
+            HAL_TIM_Base_Stop(&htim3);
+            HAL_ADC_Stop_DMA(&hadc1);
+
+            // Send the entire buffer (2 * ADC_BUF_SIZE samples)
+            print_buffer((uint16_t *)ADCBuffer);
+
+            stop_requested = 0; // reset for next run
+        }
+    }
 }
 /* USER CODE END 0 */
 
@@ -156,10 +195,15 @@ int main(void)
 	          HAL_TIM_Base_Start(&htim3);
 
 	          // Démarre la conversion ADC avec DMA (écrit 256 valeurs dans ADCBuffer)
-	          if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADCBuffer, ADC_BUF_SIZE) != HAL_OK)
+	          if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADCBuffer, 2*ADC_BUF_SIZE) != HAL_OK)
 	          {
 	              printf("Error starting ADC DMA!\r\n");
 	          }
+
+
+
+
+
 	      }
 
 	      // Petite pause pour éviter de poller trop vite
