@@ -1,4 +1,6 @@
 # ruff: noqa: N806
+from pathlib import Path
+
 import click
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,7 +57,14 @@ def add_cfo(chain: Chain, x: np.ndarray, cfo: float) -> np.ndarray:
     show_default=True,
     help="Random seed. Same seed => same results.",
 )
-def main(chain_name: str, seed: int):  # noqa: C901
+@click.option(
+    "--dest",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=Path(__file__).parents[2] / "sim_outputs.csv",
+    show_default=True,
+    help="Write output to this file.",
+)
+def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
     """
     Simulate the communication chain provided, for several SNRs.
     Compute and display the different metrics to evaluate the performances.
@@ -63,8 +72,13 @@ def main(chain_name: str, seed: int):  # noqa: C901
     mod_path, class_name = chain_name.rsplit(".", 1)
     chain_mod = __import__(mod_path, fromlist=[class_name])
     chain: Chain = getattr(chain_mod, class_name)()
+<<<<<<< HEAD
     EsN0s_dB = chain.EsN0_range
 
+=======
+
+    EsN0s_dB = chain.EsN0_range  # Es is the energy of a symbol
+>>>>>>> LELEC210X/main
     R = chain.osr_rx
     B = chain.bit_rate
     fs = B * R
@@ -87,12 +101,13 @@ def main(chain_name: str, seed: int):  # noqa: C901
     )  # Padding some zeros before the packets
 
     # Lowpass filter taps
-    taps = firwin(chain.numtaps, chain.cutoff, fs=fs)
+    if chain.numtaps != 0:
+        taps = firwin(chain.numtaps, chain.cutoff, fs=fs)
 
     rng = np.random.default_rng(seed)
 
     # For loop on the number of packets to send
-    for n in range(chain.n_packets):
+    for _ in range(chain.n_packets):
         # Random generation of payload bits
         bits = rng.integers(2, size=chain.payload_len)
 
@@ -112,7 +127,7 @@ def main(chain_name: str, seed: int):  # noqa: C901
         )  # Delay + noise in beginning, for STO metric
 
         if np.isnan(chain.cfo_val):  # CFO should be random
-            cfo = rng.uniform(low=-chain.cfo_range, high=chain.cfo_range)
+            cfo = rng.uniform(low=chain.cfo_range[0], high=chain.cfo_range[1])
         else:
             cfo = chain.cfo_val
         y_cfo = add_cfo(chain, y, cfo)  # Frequency offset addition
@@ -126,13 +141,25 @@ def main(chain_name: str, seed: int):  # noqa: C901
         for k, EsN0_dB in enumerate(EsN0s_dB):
             # Add noise
             EsN0 = 10 ** (EsN0_dB / 10.0)
+<<<<<<< HEAD
             y_noisy = y_cfo + w * np.sqrt(chain.osr_rx / EsN0)
 
             # Low-pass filtering
             y_filt = np.convolve(y_noisy, taps, mode="same")
+=======
+            SNR_input = EsN0 / chain.osr_rx
+            noise = w * np.sqrt(1 / SNR_input)
+            y_noisy = y_cfo + noise
+
+            # Low-pass filtering
+            if chain.numtaps != 0:
+                y_filt = np.convolve(y_noisy, taps, mode="same")
+            else:
+                y_filt = y_noisy
+>>>>>>> LELEC210X/main
 
             ## Preamble detection stage
-            if chain.bypass_preamble_detect:
+            if chain.ideal_preamble_detect:
                 detect_idx = start_idx
             else:
                 detect_idx = chain.preamble_detect(y_filt)
@@ -162,10 +189,9 @@ def main(chain_name: str, seed: int):  # noqa: C901
                     preamble_error = True
 
                 y_detect = y_filt[detect_idx:]
-
                 ## Synchronization stage
                 # CFO estimation and correction
-                if chain.bypass_cfo_estimation:
+                if chain.ideal_cfo_estimation:
                     cfo_hat = cfo
                 else:
                     cfo_hat = chain.cfo_estimation(y_detect)
@@ -174,9 +200,9 @@ def main(chain_name: str, seed: int):  # noqa: C901
                 y_sync = np.exp(-1j * 2 * np.pi * cfo_hat * t) * y_detect
 
                 # STO estimation and correction
-                if chain.bypass_sto_estimation:
+                if chain.ideal_sto_estimation:
                     if (
-                        chain.bypass_preamble_detect
+                        chain.ideal_preamble_detect
                     ):  # In this case, starting index of preamble already contains sto
                         tau_hat = 0
                     else:
@@ -190,7 +216,7 @@ def main(chain_name: str, seed: int):  # noqa: C901
                 bits_hat = chain.demodulate(y_sync)
 
                 if (
-                    chain.bypass_sto_estimation and chain.bypass_preamble_detect
+                    chain.ideal_sto_estimation and chain.ideal_preamble_detect
                 ):  # In this case, also assume perfect frame syncrhonization
                     start_frame = len(chain.preamble) + len(chain.sync_word)
                 elif len(bits_hat) == 0:
@@ -238,6 +264,7 @@ def main(chain_name: str, seed: int):  # noqa: C901
     preamble_mis = preamble_misdetect / chain.n_packets
     preamble_false = preamble_false_detect / chain.n_packets
 
+<<<<<<< HEAD
     # Theoretical curves - normalization
     Cu = np.correlate(taps, taps, mode="full")  # such that Cu[len(taps)-1] = 1
     sum_Cu = 0
@@ -342,6 +369,91 @@ def main(chain_name: str, seed: int):  # noqa: C901
 
     # Save simulation outputs (for later post-processing, building new figures,...)
     filename = "sim_outputs"
+=======
+    # FIR response plot
+    if chain.numtaps != 0:
+        # Filter transfer function
+        w, h = freqz(taps)
+        f = w * fs * 0.5 / np.pi
+        _fig, ax = plt.subplots(1, 1, constrained_layout=True, figsize=(7, 4))
+        ax.set_title("FIR response")
+        ax.plot(f, 20 * np.log10(abs(h)), "b")
+        ax.set_ylabel("Amplitude (dB)", color="b")
+        ax.set_xlabel("Frequency (Hz)")
+        ax2 = ax.twinx()
+        angles = np.unwrap(np.angle(h))
+        ax2.plot(f, angles, "g")
+        ax2.set_ylabel("Angle (radians)", color="g")
+        ax2.grid(True)
+        ax2.axis("tight")
+
+    # Theoretical curves
+    EsN0_th = np.arange(EsN0s_dB[0], EsN0s_dB[-1])
+
+    BER_th = 0.5 * erfc(np.sqrt(10 ** (EsN0_th / 10) / 2))
+    BER_th_BPSK = 0.5 * erfc(np.sqrt(10 ** (EsN0_th / 10)))
+    BER_th_noncoh = 0.5 * np.exp(-(10 ** (EsN0_th / 10)) / 2)
+
+    _fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(10, 4))
+    ax[0].plot(EsN0s_dB, BER, "-s", label="Simulation")
+    ax[0].plot(EsN0_th, BER_th, label="AWGN Th. FSK")
+    ax[0].plot(EsN0_th, BER_th_noncoh, label="AWGN Th. FSK non-coh.")
+    ax[0].plot(EsN0_th, BER_th_BPSK, label="AWGN Th. BPSK")
+    ax[0].set_ylabel("BER")
+    ax[0].set_xlabel("$E_{s}/N_{0}$ [dB]")
+    ax[0].set_yscale("log")
+    ax[0].set_ylim((1e-6, 1))
+    ax[0].set_xlim((EsN0s_dB[0], EsN0s_dB[-1]))
+    ax[0].grid(True)
+    ax[0].set_title("Average Bit Error Rate")
+    ax[0].legend()
+    # Packet error rate
+    ax[1].plot(EsN0s_dB, PER, "-s", label="Simulation")
+    ax[1].plot(EsN0_th, 1 - (1 - BER_th) ** chain.payload_len, label="AWGN Th. FSK")
+    ax[1].plot(
+        EsN0_th,
+        1 - (1 - BER_th_noncoh) ** chain.payload_len,
+        label="AWGN Th. FSK non-coh.",
+    )
+    ax[1].plot(
+        EsN0_th, 1 - (1 - BER_th_BPSK) ** chain.payload_len, label="AWGN Th. BPSK"
+    )
+    ax[1].set_ylabel("PER")
+    ax[1].set_xlabel("$E_{s}/N_{0}$ [dB]")
+    ax[1].set_yscale("log")
+    ax[1].set_ylim((1e-6, 1))
+    ax[1].set_xlim((EsN0s_dB[0], EsN0s_dB[-1]))
+    ax[1].grid(True)
+    ax[1].set_title("Average Packet Error Rate")
+    ax[1].legend()
+
+    # Preamble metrics
+    _fig, ax = plt.subplots(1, 3, constrained_layout=True, figsize=(10, 4))
+    ax[0].plot(EsN0s_dB, preamble_mis * 100, "-s", label="Miss-detection")
+    ax[0].plot(EsN0s_dB, preamble_false * 100, "-s", label="False-detection")
+    ax[0].set_title("Preamble detection error ")
+    ax[0].set_ylabel("[%]")
+    ax[0].set_xlabel("$E_{s}/N_{0}$ [dB]")
+    ax[0].set_ylim([-1, 101])
+    ax[0].grid()
+    ax[0].legend()
+    # RMSE CFO
+    ax[1].semilogy(EsN0s_dB, RMSE_cfo, "-s")
+    ax[1].set_title("RMSE CFO")
+    ax[1].set_ylabel("RMSE [-]")
+    ax[1].set_xlabel("$E_{s}/N_{0}$ [dB]")
+    ax[1].grid()
+    # RMSE STO
+    ax[2].semilogy(EsN0s_dB, RMSE_sto, "-s")
+    ax[2].set_title("RMSE STO")
+    ax[2].set_ylabel("RMSE [-]")
+    ax[2].set_xlabel("$E_{s}/N_{0}$ [dB]")
+    ax[2].grid()
+
+    plt.show()
+
+    # Save simulation outputs (for later post-processing, building new figures,...)
+>>>>>>> LELEC210X/main
     save_var = np.column_stack(
         (
             EsN0s_dB,
@@ -353,8 +465,13 @@ def main(chain_name: str, seed: int):  # noqa: C901
             preamble_false,
         )
     )
+<<<<<<< HEAD
     np.savetxt(f"{filename}.csv", save_var, delimiter="\t")
     
+=======
+    np.savetxt(dest, save_var, delimiter="\t")
+
+>>>>>>> LELEC210X/main
     # Read file:
     # data = np.loadtxt('test.csv')
     # SNRs_dB = data[:,0]
