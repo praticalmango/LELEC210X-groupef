@@ -217,3 +217,32 @@ class BasicChain(Chain):
         bits_hat = np.zeros(nb_syms, dtype=int)
 
         return bits_hat
+    
+    # def demodulate(self, y):
+    #     """Non-coherent demodulator."""
+    #     R = self.osr_rx  # Receiver oversampling factor
+    #     nb_syms = len(y) // R  # Number of symbols in y
+
+    #     # Group samples: each row = one symbol duration
+    #     y = np.resize(y, (nb_syms, R))
+
+    #     # Frequency deviation (must be same as in modulate)
+    #     df = self.df      # Frequency deviation (Delta f)
+    #     Ts = self.Ts      # Symbol period T
+
+    #     # Time vector for one symbol period
+    #     n = np.arange(R)
+    #     t = n * Ts / R
+
+    #     # Reference baseband signals (complex exponentials)
+    #     es1 = np.exp(-1j * 2 * np.pi * df * t)  # for bit "1"
+    #     es0 = np.exp(+1j * 2 * np.pi * df * t)  # for bit "0"
+
+    #     # Correlation with reference waveforms
+    #     r1 = (y @ es1.conj()) / R  # shape: (nb_syms,)
+    #     r0 = (y @ es0.conj()) / R
+
+    #     # Non-coherent detection → compare magnitudes
+    #     bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
+
+    #     return bits_hat
