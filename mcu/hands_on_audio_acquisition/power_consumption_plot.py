@@ -2,20 +2,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Charger le fichier en ignorant les métadonnées
-df = pd.read_csv("poow.csv", comment=';')
+df = pd.read_csv("popopow.csv", comment=';')
 
 # Décaler l'axe du temps de 3.194 secondes
 
 
-# Vérifier les premières lignes
-print(df.head())
+# Vérifier les premiè
 
 # Calculer la puissance pour chaque point en mW : P = (V / 47) * 3.3 * 1000
-df["Power(mW)"] = (df["CH1(V)"] / 47) * 3.3 * 1000 - df["CH1(V)"] ** 2 / 47 * 1000
-df["Time(S)"] = df["Time(S)"] + 9.863
-t1 = -4.902 + 9.863
-t2 = -2.863 + 9.863
-t3 = 1.351 + 9.863
+df["Power(mW)"] = (df["CH1(V)"] / 47) * 3.3 * 1000 
+t1 = 0.0
+t2 = 0.985
+t3 = 3.135
 
 plt.figure(figsize=(10, 5))
 # Ajouter des couleurs de fond pour chaque section AVANT de tracer la courbe
@@ -40,9 +38,9 @@ plt.show()
 
 # énergie totale consommée en mJ
 # Calculer la puissance moyenne pendant la phase d'acquisition avec la même formule
-power_2 = (0.134707 / 47) * 3.3 * 1000 - (0.134707 ** 2) / 47 * 1000  # mW
+power_2 = (0.143229 / 47) * 3.3 * 1000  # mW
 energy_2 = power_2 * (t2 - t1)  # mJ
-power_3 = (0.272077 / 47) * 3.3 * 1000 - (0.272077 ** 2) / 47 * 1000  # mW
+power_3 = (0.29277 / 47) * 3.3 * 1000  # mW
 energy_3 = power_3 * (t3 - t2)  # mJ
 energy_total = energy_2 + energy_3
 print(f"Énergie totale consommée : {energy_total:.2f} mJ")
