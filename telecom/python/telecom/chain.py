@@ -110,14 +110,16 @@ class Chain:
         """
         raise NotImplementedError
 
+
     def demodulate(self, y: np.array) -> np.array:
         """
-        Demodulates the received signal.
+        Demodulates the received signal using non-coherent detection.
 
-        :param y: The received signal, (N * R,).
-        :return: The signal, after demodulation.
+        :param y: The received signal, shape (N * R_RX,)
+        :return: Detected symbols, shape (N,)
         """
         raise NotImplementedError
+
 
 
 class BasicChain(Chain):
@@ -199,8 +201,8 @@ class BasicChain(Chain):
 
         return np.mod(save_i + 1, R)
 
-    def demodulate(self, y):
-        """Non-coherent demodulator."""
+    """def demodulate(self, y):
+        ""Non-coherent demodulator.""
         R = self.osr_rx  # Receiver oversampling factor
         nb_syms = len(y) // R  # Number of CPFSK symbols in y
 
@@ -216,33 +218,33 @@ class BasicChain(Chain):
 
         bits_hat = np.zeros(nb_syms, dtype=int)
 
-        return bits_hat
+        return bits_hat"""
     
-    # def demodulate(self, y):
-    #     """Non-coherent demodulator."""
-    #     R = self.osr_rx  # Receiver oversampling factor
-    #     nb_syms = len(y) // R  # Number of symbols in y
+    def demodulate(self, y):
+        """Non-coherent demodulator."""
+        R = self.osr_rx  # Receiver oversampling factor
+        nb_syms = len(y) // R  # Number of CPFSK symbols in y
 
-    #     # Group samples: each row = one symbol duration
-    #     y = np.resize(y, (nb_syms, R))
+        # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
+        y = np.resize(y, (nb_syms, R))
 
-    #     # Frequency deviation (must be same as in modulate)
-    #     df = self.df      # Frequency deviation (Delta f)
-    #     Ts = self.Ts      # Symbol period T
+        # Generate the reference waveforms used for the correlation
+        # Based on what's done in modulate()
+        fd = self.freq_dev  # Frequency deviation, Delta_f
+        B = self.bit_rate   # B=1/T
+        n = np.arange(R)
+        
+        # Reference waveforms - same as in modulate() but without cumulative phase
+        # (non-coherent detection ignores absolute phase)
+        ref1 = np.exp(-1j * 2 * np.pi * fd * n / (R * B))  # For bit 1
+        ref0 = np.exp(1j * 2 * np.pi * fd * n / (R * B)) # For bit -1/0
 
-    #     # Time vector for one symbol period
-    #     n = np.arange(R)
-    #     t = n * Ts / R
+        # Compute the correlations with the two reference waveforms (r1 and r0)
+        r1 = np.sum(y * ref1, axis=1) / R  # Correlation with reference for bit 1
+        r0 = np.sum(y * ref0, axis=1) / R  # Correlation with reference for bit 0
 
-    #     # Reference baseband signals (complex exponentials)
-    #     es1 = np.exp(-1j * 2 * np.pi * df * t)  # for bit "1"
-    #     es0 = np.exp(+1j * 2 * np.pi * df * t)  # for bit "0"
+        # Perform the decision based on |r1| and |r0|
+        # For binary decision: if |r1| > |r0| then bit=1, else bit=0
+        bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
 
-    #     # Correlation with reference waveforms
-    #     r1 = (y @ es1.conj()) / R  # shape: (nb_syms,)
-    #     r0 = (y @ es0.conj()) / R
-
-    #     # Non-coherent detection → compare magnitudes
-    #     bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
-
-    #     return bits_hat
+        return bits_hat
