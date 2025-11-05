@@ -22,7 +22,7 @@ class Chain:
     payload_len: int = 8 * 100  # Number of bits per packet
 
     # Simulation parameters
-    n_packets: int = 100  # Number of sent packets
+    n_packets: int = 500  # Number of sent packets
 
     # Channel parameters
     sto_val: float = 0
@@ -30,8 +30,8 @@ class Chain:
 
     cfo_val: float = np.nan
     cfo_range: tuple[float, float] = (
-        8_000,
-        10_000,  # defines the CFO range when random (in Hz) #(1000 in old repo)
+        -1000,
+        1000,  # defines the CFO range when random (in Hz) #(1000 in old repo)
     )
 
     EsN0_range: np.ndarray = np.arange(0, 30, 1)
@@ -168,7 +168,16 @@ class BasicChain(Chain):
 
         return None
 
-    ideal_cfo_estimation = True
+    ideal_cfo_estimation = False
+    
+    # def cfo_estimation(self, y):
+    #     """Estimates CFO using Moose algorithm, on first samples of preamble."""
+    #     # TO DO: extract 2 blocks of size N*R at the start of y
+    #     N = 4  # You can change this value if needed
+    #     # TO DO: apply the Moose algorithm on these two blocks to estimate the CFO
+    #     cfo_est = 0
+
+    #     return cfo_est
 
     def cfo_estimation(self, y):
         """Estimates CFO using Moose algorithm, on first samples of preamble."""
@@ -204,7 +213,7 @@ class BasicChain(Chain):
     
 
 
-    ideal_sto_estimation = True
+    ideal_sto_estimation = False
 
     def sto_estimation(self, y):
         """Estimates symbol timing (fractional) based on phase shifts."""
@@ -226,24 +235,24 @@ class BasicChain(Chain):
 
         return np.mod(save_i + 1, R)
 
-    """def demodulate(self, y):
-        ""Non-coherent demodulator.""
-        R = self.osr_rx  # Receiver oversampling factor
-        nb_syms = len(y) // R  # Number of CPFSK symbols in y
+    # def demodulate(self, y):
+    #     """Non-coherent demodulator."""
+    #     R = self.osr_rx  # Receiver oversampling factor
+    #     nb_syms = len(y) // R  # Number of CPFSK symbols in y
 
-        # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
-        y = np.resize(y, (nb_syms, R))
+    #     # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
+    #     y = np.resize(y, (nb_syms, R))
 
-        # TO DO: generate the reference waveforms used for the correlation
-        # hint: look at what is done in modulate() in chain.py
+    #     # TO DO: generate the reference waveforms used for the correlation
+    #     # hint: look at what is done in modulate() in chain.py
 
-        # TO DO: compute the correlations with the two reference waveforms (r0 and r1)
+    #     # TO DO: compute the correlations with the two reference waveforms (r0 and r1)
 
-        # TO DO: performs the decision based on r0 and r1
+    #     # TO DO: performs the decision based on r0 and r1
 
-        bits_hat = np.zeros(nb_syms, dtype=int)
+    #     bits_hat = np.zeros(nb_syms, dtype=int)
 
-        return bits_hat"""
+    #     return bits_hat
     
     def demodulate(self, y):
         """Non-coherent demodulator."""

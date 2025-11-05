@@ -24,15 +24,32 @@ import numpy as np
 from gnuradio import gr
 
 
-
-
 def demodulate(y, B, R, Fdev):
-    """
-    Non-coherent demodulator.
-    """
-    nb_syms = int(len(y) / R)
-    bits_hat = np.zeros(nb_syms, dtype=int)
-    return bits_hat  # TODO
+    """Non-coherent demodulator."""
+    nb_syms = len(y) // R  # Number of CPFSK symbols in y
+
+    # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
+    y = np.resize(y, (nb_syms, R))
+
+    # Generate the reference waveforms used for the correlation
+    # Based on what's done in modulate()
+    fd = Fdev  # Frequency deviation, Delta_f
+    n = np.arange(R)
+    
+    # Reference waveforms - same as in modulate() but without cumulative phase
+    # (non-coherent detection ignores absolute phase)
+    ref1 = np.exp(-1j * 2 * np.pi * fd * n / (R * B))  # For bit 1
+    ref0 = np.exp(1j * 2 * np.pi * fd * n / (R * B)) # For bit -1/0
+
+    # Compute the correlations with the two reference waveforms (r1 and r0)
+    r1 = np.sum(y * ref1, axis=1) / R  # Correlation with reference for bit 1
+    r0 = np.sum(y * ref0, axis=1) / R  # Correlation with reference for bit 0
+
+    # Perform the decision based on |r1| and |r0|
+    # For binary decision: if |r1| > |r0| then bit=1, else bit=0
+    bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
+
+    return bits_hat
 
 
 

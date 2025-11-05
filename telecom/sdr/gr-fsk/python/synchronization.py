@@ -27,11 +27,37 @@ from gnuradio import gr
 from .utils import logging, measurements_logger
 
 
-def cfo_estimation(y, B, R, Fdev):
-    """
-    Estimate CFO using Moose algorithm, on first samples of preamble
-    """
-    return 0.0  # TODO
+
+def cfo_estimation(y,B, R, Fdev):
+    """Estimates CFO using Moose algorithm, on first samples of preamble."""
+    # Extract 2 blocks of size N*R at the start of y
+    N = 2  # Number of bits per block
+    block_size = N * R  # Number of samples per block
+    
+    # Check if we have enough samples
+    if len(y) < 2 * block_size:
+        raise ValueError(f"Not enough samples for CFO estimation. Need {2 * block_size}, got {len(y)}")
+    
+    # Extract the two consecutive blocks
+    y1 = y[:block_size]  # First block
+    y2 = y[block_size:2 * block_size]  # Second block
+    
+    # Apply the Moose algorithm on these two blocks to estimate the CFO
+    # Calculate the correlation sum: sum(y2[l] * conj(y1[l]))
+    correlation_sum = np.sum(y2 * np.conj(y1))
+    
+    # Get the angle (argument) of the correlation sum
+    angle = np.angle(correlation_sum)
+    
+    # Calculate the CFO estimate using Moose formula
+    # Δf_c = angle / (2π * (N_i * T / R_RX))
+    # where N_i = N * R_RX and T = 1/B (symbol period)
+    T = 1.0 / B  # Symbol period
+    denominator = 2 * np.pi * (block_size * T / R)
+    
+    cfo_est = angle / denominator
+    
+    return cfo_est
 
 
 def sto_estimation(y, B, R, Fdev):
