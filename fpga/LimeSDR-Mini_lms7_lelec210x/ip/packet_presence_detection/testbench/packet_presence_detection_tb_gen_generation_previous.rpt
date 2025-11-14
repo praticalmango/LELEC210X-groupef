@@ -23,8 +23,8 @@ Progress: (2) searching C:/intelfpga/18.1/quartus/sopc_builder/bin/root_componen
 Info: Reading index C:\intelfpga\18.1\quartus\sopc_builder\bin\root_components.ipx
 Info: C:\intelfpga\18.1\quartus\sopc_builder\bin\root_components.ipx: Loading now from components.ipx
 Info: Reading index C:\intelfpga\18.1\quartus\sopc_builder\bin\ip_component_categories.ipx
-Info: C:\intelfpga\18.1\quartus\sopc_builder\bin\ip_component_categories.ipx described 0 plugins, 0 paths, in 0.03 seconds
-Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/ip_component_categories.ipx matched 1 files in 0.03 seconds
+Info: C:\intelfpga\18.1\quartus\sopc_builder\bin\ip_component_categories.ipx described 0 plugins, 0 paths, in 0.00 seconds
+Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/ip_component_categories.ipx matched 1 files in 0.00 seconds
 Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/ip/**/* matched 0 files in 0.00 seconds
 Info: Reading index D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/AVS2FIFO_hw.tcl
@@ -35,13 +35,13 @@ Progress: Loading LimeSDR-Mini_lms7_lelec210x/lms_ctr.qsys
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/lms_dsp.qsys
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/packet_presence_detection_hw.tcl
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/packet_presence_detection_tb_gen.qsys
-Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/* matched 43 files in 0.40 seconds
+Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/* matched 43 files in 0.13 seconds
 Progress: Loading clkctrl/clkctrl.qsys
 Info: Reading index D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\fir\testbench\fir_tb_gen.ipx
 Warning: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* repeats D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*
 Warning: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* repeats D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/*
-Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* matched 1012 files in 0.04 seconds
-Info: D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\fir\testbench\fir_tb_gen.ipx described 0 plugins, 3 paths, in 0.06 seconds
+Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* matched 1009 files in 0.04 seconds
+Info: D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\fir\testbench\fir_tb_gen.ipx described 0 plugins, 3 paths, in 0.04 seconds
 Progress: Loading testbench/fir_tb_gen_tb.qsys
 Progress: Loading i2c_opencores_v13/i2c_opencores_hw.tcl
 Progress: Loading i2c_opencores_v13/i2c_opencores_sw.tcl
@@ -53,31 +53,31 @@ Warning: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_l
 Warning: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* repeats D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/*
 Info: D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0.00 seconds
 Progress: Loading testbench/packet_presence_detection_tb_gen_tb.qsys
-Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* matched 116 files in 0.25 seconds
+Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* matched 116 files in 0.12 seconds
 Warning: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* repeats D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/*
-Info: D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0.65 seconds
+Info: D:\Pol\Documents\Courses\LELEC2102\Github\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0.25 seconds
 Progress: Loading testbench/packet_presence_detection_tb_gen_tb.qsys
-Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/* matched 20 files in 0.65 seconds
-Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/*/* matched 25 files in 0.00 seconds
+Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/* matched 20 files in 0.26 seconds
+Info: D:/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/*/* matched 28 files in 0.00 seconds
 Info: Reading index C:\Users\maistriauxp\.altera.quartus\ip\18.1\ip_search_path\user_components.ipx
-Info: C:\Users\maistriauxp\.altera.quartus\ip\18.1\ip_search_path\user_components.ipx described 0 plugins, 0 paths, in 0.02 seconds
-Info: C:/Users/maistriauxp/.altera.quartus/ip/18.1/**/* matched 2 files in 0.02 seconds
+Info: C:\Users\maistriauxp\.altera.quartus\ip\18.1\ip_search_path\user_components.ipx described 0 plugins, 0 paths, in 0.00 seconds
+Info: C:/Users/maistriauxp/.altera.quartus/ip/18.1/**/* matched 2 files in 0.00 seconds
 Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_PROJECTDIR/* matched 0 files in 0.00 seconds
 Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_USERDIR/* matched 0 files in 0.00 seconds
 Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_GLOBALDIR/* matched 0 files in 0.00 seconds
 Info: Reading index C:\intelfpga\18.1\ip\altera\altera_components.ipx
-Info: C:\intelfpga\18.1\ip\altera\altera_components.ipx described 2035 plugins, 0 paths, in 0.18 seconds
-Info: C:/intelfpga/18.1/ip/**/* matched 139 files in 0.19 seconds
+Info: C:\intelfpga\18.1\ip\altera\altera_components.ipx described 2035 plugins, 0 paths, in 0.11 seconds
+Info: C:/intelfpga/18.1/ip/**/* matched 139 files in 0.15 seconds
 Info: C:/intelfpga/ip/**/* matched 0 files in 0.00 seconds
 Info: Reading index C:\intelfpga\18.1\quartus\sopc_builder\builtin.ipx
-Info: C:\intelfpga\18.1\quartus\sopc_builder\builtin.ipx described 83 plugins, 0 paths, in 0.03 seconds
-Info: C:/intelfpga/18.1/quartus/sopc_builder/**/* matched 8 files in 0.03 seconds
+Info: C:\intelfpga\18.1\quartus\sopc_builder\builtin.ipx described 83 plugins, 0 paths, in 0.01 seconds
+Info: C:/intelfpga/18.1/quartus/sopc_builder/**/* matched 8 files in 0.01 seconds
 Info: Reading index C:\intelfpga\18.1\quartus\common\librarian\factories\index.ipx
-Info: C:\intelfpga\18.1\quartus\common\librarian\factories\index.ipx described 151 plugins, 0 paths, in 0.03 seconds
-Info: C:/intelfpga/18.1/quartus/common/librarian/factories/**/* matched 4 files in 0.03 seconds
+Info: C:\intelfpga\18.1\quartus\common\librarian\factories\index.ipx described 151 plugins, 0 paths, in 0.01 seconds
+Info: C:/intelfpga/18.1/quartus/common/librarian/factories/**/* matched 4 files in 0.01 seconds
 Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/$IP_IPX_PATH matched 1 files in 0.00 seconds
-Info: C:\intelfpga\18.1\quartus\sopc_builder\bin\root_components.ipx described 0 plugins, 13 paths, in 0.97 seconds
-Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/root_components.ipx matched 1 files in 0.97 seconds
+Info: C:\intelfpga\18.1\quartus\sopc_builder\bin\root_components.ipx described 0 plugins, 13 paths, in 0.43 seconds
+Info: C:/intelfpga/18.1/quartus/sopc_builder/bin/root_components.ipx matched 1 files in 0.43 seconds
 Progress: 
 Progress: 
 Progress: 
