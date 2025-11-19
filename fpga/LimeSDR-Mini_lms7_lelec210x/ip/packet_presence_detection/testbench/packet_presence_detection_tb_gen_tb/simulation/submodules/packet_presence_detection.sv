@@ -211,7 +211,8 @@ module dual_running_sum #(
 
 	
 	// ------------------- TO DO : START -------------------
-	assign long_shift_rescale = long_sum_reg * K;
+//	assign long_shift_rescale = long_sum_reg * K;
+	always_ff @(posedge clock) long_shift_rescale <= long_sum_reg * K;
 	
 	assign short_sum_rescale  = short_sum_reg << 6;
 	

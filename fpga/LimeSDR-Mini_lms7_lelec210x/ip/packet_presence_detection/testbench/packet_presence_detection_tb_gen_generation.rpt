@@ -35,12 +35,12 @@ Progress: Loading LimeSDR-Mini_lms7_lelec210x/lms_ctr.qsys
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/lms_dsp.qsys
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/packet_presence_detection_hw.tcl
 Progress: Loading LimeSDR-Mini_lms7_lelec210x/packet_presence_detection_tb_gen.qsys
-Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/* matched 42 files in 0,14 seconds
+Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/* matched 43 files in 0,12 seconds
 Progress: Loading clkctrl/clkctrl.qsys
 Info: Reading index C:\Users\franc\Documents\Codes\projet_elec\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\fir\testbench\fir_tb_gen.ipx
 Warning: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* repeats C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*
 Warning: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* repeats C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/*
-Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* matched 934 files in 0,04 seconds
+Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* matched 968 files in 0,04 seconds
 Info: C:\Users\franc\Documents\Codes\projet_elec\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\fir\testbench\fir_tb_gen.ipx described 0 plugins, 3 paths, in 0,04 seconds
 Progress: Loading testbench/fir_tb_gen_tb.qsys
 Progress: Loading i2c_opencores_v13/i2c_opencores_hw.tcl
@@ -53,29 +53,29 @@ Warning: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_
 Warning: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* repeats C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/*
 Info: C:\Users\franc\Documents\Codes\projet_elec\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0,00 seconds
 Progress: Loading testbench/packet_presence_detection_tb_gen_tb.qsys
-Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* matched 243 files in 0,15 seconds
+Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/**/* matched 244 files in 0,13 seconds
 Warning: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/* repeats C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/*/*
-Info: C:\Users\franc\Documents\Codes\projet_elec\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0,31 seconds
+Info: C:\Users\franc\Documents\Codes\projet_elec\LELEC210X\fpga\LimeSDR-Mini_lms7_lelec210x\ip\packet_presence_detection\testbench\packet_presence_detection_tb_gen.ipx described 0 plugins, 3 paths, in 0,26 seconds
 Progress: Loading testbench/packet_presence_detection_tb_gen_tb.qsys
-Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/* matched 20 files in 0,31 seconds
+Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/* matched 20 files in 0,26 seconds
 Info: C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/*/* matched 28 files in 0,00 seconds
 Info: C:/Users/franc/.altera.quartus/ip/18.1/**/* matched 0 files in 0,00 seconds
 Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_PROJECTDIR/* matched 0 files in 0,00 seconds
 Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_USERDIR/* matched 0 files in 0,00 seconds
 Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/$$QUARTUS_IP_GLOBALDIR/* matched 0 files in 0,00 seconds
 Info: Reading index C:\intelfpga_lite\18.1\ip\altera\altera_components.ipx
-Info: C:\intelfpga_lite\18.1\ip\altera\altera_components.ipx described 2035 plugins, 0 paths, in 0,13 seconds
-Info: C:/intelfpga_lite/18.1/ip/**/* matched 139 files in 0,14 seconds
+Info: C:\intelfpga_lite\18.1\ip\altera\altera_components.ipx described 2035 plugins, 0 paths, in 0,14 seconds
+Info: C:/intelfpga_lite/18.1/ip/**/* matched 139 files in 0,15 seconds
 Info: C:/intelfpga_lite/ip/**/* matched 0 files in 0,00 seconds
 Info: Reading index C:\intelfpga_lite\18.1\quartus\sopc_builder\builtin.ipx
-Info: C:\intelfpga_lite\18.1\quartus\sopc_builder\builtin.ipx described 83 plugins, 0 paths, in 0,01 seconds
+Info: C:\intelfpga_lite\18.1\quartus\sopc_builder\builtin.ipx described 83 plugins, 0 paths, in 0,00 seconds
 Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/**/* matched 8 files in 0,01 seconds
 Info: Reading index C:\intelfpga_lite\18.1\quartus\common\librarian\factories\index.ipx
 Info: C:\intelfpga_lite\18.1\quartus\common\librarian\factories\index.ipx described 151 plugins, 0 paths, in 0,01 seconds
 Info: C:/intelfpga_lite/18.1/quartus/common/librarian/factories/**/* matched 4 files in 0,01 seconds
 Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/$IP_IPX_PATH matched 1 files in 0,00 seconds
-Info: C:\intelfpga_lite\18.1\quartus\sopc_builder\bin\root_components.ipx described 0 plugins, 13 paths, in 0,48 seconds
-Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/root_components.ipx matched 1 files in 0,48 seconds
+Info: C:\intelfpga_lite\18.1\quartus\sopc_builder\bin\root_components.ipx described 0 plugins, 13 paths, in 0,43 seconds
+Info: C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/root_components.ipx matched 1 files in 0,43 seconds
 Progress: 
 Progress: 
 Progress: 

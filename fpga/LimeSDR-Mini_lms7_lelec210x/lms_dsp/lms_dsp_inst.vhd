@@ -13,6 +13,8 @@
 			ppd_debug_short_sum     : out std_logic_vector(31 downto 0);                    -- debug_short_sum
 			ppd_cfg_enable_fir      : in  std_logic                     := 'X';             -- cfg_enable_fir
 			ppd_cfg_enable_ppd      : in  std_logic                     := 'X';             -- cfg_enable_ppd
+			ppd_cfg_pass_sum_signal : in  std_logic                     := 'X';             -- cfg_pass_sum_signal
+			ppd_cfg_red_sum_signal  : in  std_logic                     := 'X';             -- cfg_red_sum_signal
 			reset_reset_n           : in  std_logic                     := 'X'              -- reset_n
 		);
 	end component lms_dsp;
@@ -32,6 +34,8 @@
 			ppd_debug_short_sum     => CONNECTED_TO_ppd_debug_short_sum,     --         .debug_short_sum
 			ppd_cfg_enable_fir      => CONNECTED_TO_ppd_cfg_enable_fir,      --         .cfg_enable_fir
 			ppd_cfg_enable_ppd      => CONNECTED_TO_ppd_cfg_enable_ppd,      --         .cfg_enable_ppd
+			ppd_cfg_pass_sum_signal => CONNECTED_TO_ppd_cfg_pass_sum_signal, --         .cfg_pass_sum_signal
+			ppd_cfg_red_sum_signal  => CONNECTED_TO_ppd_cfg_red_sum_signal,  --         .cfg_red_sum_signal
 			reset_reset_n           => CONNECTED_TO_reset_reset_n            --    reset.reset_n
 		);
 

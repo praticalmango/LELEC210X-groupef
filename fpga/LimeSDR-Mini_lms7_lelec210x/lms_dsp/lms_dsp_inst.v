@@ -12,6 +12,8 @@
 		.ppd_debug_short_sum     (<connected-to-ppd_debug_short_sum>),     //         .debug_short_sum
 		.ppd_cfg_enable_fir      (<connected-to-ppd_cfg_enable_fir>),      //         .cfg_enable_fir
 		.ppd_cfg_enable_ppd      (<connected-to-ppd_cfg_enable_ppd>),      //         .cfg_enable_ppd
+		.ppd_cfg_pass_sum_signal (<connected-to-ppd_cfg_pass_sum_signal>), //         .cfg_pass_sum_signal
+		.ppd_cfg_red_sum_signal  (<connected-to-ppd_cfg_red_sum_signal>),  //         .cfg_red_sum_signal
 		.reset_reset_n           (<connected-to-reset_reset_n>)            //    reset.reset_n
 	);
 
