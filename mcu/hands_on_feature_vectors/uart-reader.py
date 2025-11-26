@@ -12,6 +12,11 @@ from serial.tools import list_ports
 
 from classification.utils.plots import plot_specgram
 
+import pickle
+
+with open("C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/classification/data/models/knn_model.pkl", "rb") as f:
+    model = pickle.load(f)
+
 PRINT_PREFIX = "DF:HEX:"
 FREQ_SAMPLING = 10200
 MELVEC_LENGTH = 20
@@ -69,8 +74,33 @@ if __name__ == "__main__":
 
         for melvec in input_stream:
             msg_counter += 1
+            
+            
 
             print(f"MEL Spectrogram #{msg_counter}")
+            
+            # melvec is length 400 (20x20)
+            mel_2d = melvec.reshape((N_MELVECS, MELVEC_LENGTH))   # shape = (20, 20)
+
+            # ---- OPTION A: model expects FLAT vector ----
+            X = melvec.reshape(1, -1)  # shape = (1, 400)
+
+            # ---- OPTION B: model expects 2D image ----
+            # X = mel_2d[np.newaxis, :, :]  # shape = (1, 20, 20)
+
+            # ---- Classification ----
+            # ---- NORMALIZE EXACTLY LIKE TRAINING ----
+            norm = np.linalg.norm(X, axis=1, keepdims=True)
+            X_norm = X / norm
+
+            # ---- Predict ----
+            prediction = model.predict(X_norm)
+
+            print(f"Prediction #{msg_counter}: {prediction}")
+            
+            
+            
+            
 
             plt.figure()
             plot_specgram(
