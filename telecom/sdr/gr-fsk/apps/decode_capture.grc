@@ -49,7 +49,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 868e6
+    value: 870e6
   states:
     bus_sink: false
     bus_source: false
@@ -172,7 +172,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /mnt/d/Pol/Documents/Courses/LELEC2102/Github/LELEC210X/telecom/sdr/gr-fsk/misc/fsk_capture.mat
+    file: /mnt/c/Users/franc/Documents/Codes/projet_elec/LELEC210X/telecom/sdr/gr-fsk/misc/fsk_capture.mat
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'

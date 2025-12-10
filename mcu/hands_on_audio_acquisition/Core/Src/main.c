@@ -19,7 +19,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "dma.h"
 #include "usart.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -35,7 +38,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_BUF_SIZE 256
+#define ADC_BUF_SIZE 5000
+#define POWER_THRESHOLD 50
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -64,11 +68,45 @@ uint32_t get_signal_power(uint16_t *buffer, size_t len);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == B1_Pin) {
-		state = 1-state;
-	}
+
+volatile uint8_t stop_requested = 0;  // Used to stop after a high-power detection
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == B1_Pin)
+    {
+        // Toggle state variable
+        state = 1 - state;
+
+        if (state == 1)
+        {
+        	state = 0;
+            printf("Button pressed → Starting ADC sampling (double buffer)...\r\n");
+
+            //stop_requested = 0;
+
+            // Start the timer (triggers ADC conversions)
+
+
+            HAL_TIM_Base_Start(&htim3);
+
+            // Start ADC DMA for 2*ADC_BUF_SIZE samples (double buffer)
+            if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADCBuffer, 2 * ADC_BUF_SIZE) != HAL_OK)
+            {
+                printf("Error starting ADC DMA!\r\n");
+            }
+
+
+        }
+        //HAL_Delay(50);
+    }
 }
+
+
+
+
+
+
 
 void hex_encode(char* s, const uint8_t* buf, size_t len) {
     s[2*len] = '\0'; // A string terminated by a zero char.
@@ -80,7 +118,10 @@ void hex_encode(char* s, const uint8_t* buf, size_t len) {
 
 void print_buffer(uint16_t *buffer) {
 	hex_encode(hex_encoded_buffer, (uint8_t*)buffer, 2*ADC_BUF_SIZE);
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
 	printf("SND:HEX:%s\r\n", hex_encoded_buffer);
+	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+
 }
 
 uint32_t get_signal_power(uint16_t *buffer, size_t len){
@@ -92,6 +133,43 @@ uint32_t get_signal_power(uint16_t *buffer, size_t len){
 	}
 	return (uint32_t)(sum2/len - sum*sum/len/len);
 }
+
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        uint32_t power = get_signal_power((uint16_t *)ADCData1, ADC_BUF_SIZE);
+        printf("[Half] Power = %lu\r\n", power);
+
+        if (power > POWER_THRESHOLD)
+        {
+            stop_requested = 1; // will stop after finishing current buffer
+        }
+    }
+}
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        uint32_t power = get_signal_power((uint16_t *)ADCData2, ADC_BUF_SIZE);
+        printf("[Full] Power = %lu\r\n", power);
+
+        if (stop_requested)
+        {
+            printf("Power threshold exceeded! Stopping sampling...\r\n");
+            HAL_TIM_Base_Stop(&htim3);
+            HAL_ADC_Stop_DMA(&hadc1);
+
+            // Send the entire buffer (2 * ADC_BUF_SIZE samples)
+            print_buffer((uint16_t *)ADCBuffer);
+
+            stop_requested = 0; // reset for next run
+        }
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -100,6 +178,7 @@ uint32_t get_signal_power(uint16_t *buffer, size_t len){
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -122,7 +201,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_LPUART1_UART_Init();
+  MX_ADC1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&hlpuart1);
   printf("Hello world!\r\n");
@@ -135,14 +217,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-	HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	  __WFI();
   }
+
   /* USER CODE END 3 */
 }
 
@@ -208,8 +289,7 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

@@ -8,6 +8,7 @@ import sounddevice as sd
 import soundfile as sf
 from numpy import ndarray
 from scipy.signal import fftconvolve
+from scipy import signal
 
 # -----------------------------------------------------------------------------
 """
@@ -66,9 +67,16 @@ class AudioUtil:
         """
         sig, sr = audio
 
-        ### TO COMPLETE
+        # If already at target sampling rate, return unchanged
+        if sr == newsr:
+            return (sig, sr)
+
+        # Compute the new number of samples after resampling
+        new_len = int(len(sig) * newsr / sr)
+        resig = signal.resample(sig, new_len)
 
         return (resig, newsr)
+
 
     def pad_trunc(audio, max_ms) -> tuple[ndarray, int]:
         """
@@ -110,9 +118,16 @@ class AudioUtil:
         """
         sig, sr = audio
 
-        ### TO COMPLETE
+        # sample a scaling factor in [1/scaling_limit, scaling_limit]
+        scale = random.uniform(1.0 / scaling_limit, float(scaling_limit))
 
-        return audio
+        # apply scaling (works for mono or multi-channel)
+        scaled = sig * scale
+
+        # avoid values outside [-1, 1] which may cause clipping on playback
+        scaled = np.clip(scaled, -1.0, 1.0)
+
+        return (scaled, sr)
 
     def add_noise(audio, sigma=0.05) -> tuple[ndarray, int]:
         """
@@ -123,9 +138,17 @@ class AudioUtil:
         """
         sig, sr = audio
 
-        ### TO COMPLETE
+        # Ensure we work in floating point to add noise
+        sig_float = sig.astype(float)
 
-        return audio
+        # Generate noise with same shape as signal (handles mono or multi-channel)
+        noise = np.random.randn(*sig_float.shape) * sigma
+
+        # Add noise and avoid clipping
+        noisy = sig_float + noise
+        noisy = np.clip(noisy, -1.0, 1.0)
+
+        return (noisy, sr)
 
     def echo(audio, nechos=2) -> tuple[ndarray, int]:
         """
@@ -150,13 +173,65 @@ class AudioUtil:
         Filter the audio signal with a provided filter. Note the filter is given for positive frequencies only and is thus symmetrized in the function.
 
         :param audio: The audio signal as a tuple (signal, sample_rate).
-        :param filt: The filter to apply.
+        :param filt: The filter to apply. Accepted forms:
+                     - frequency-domain positive-frequency response (length == len(rfft(sig)))
+                     - time-domain impulse response (will be FFT'ed and used as freq response)
         """
         sig, sr = audio
+        sig_float = sig.astype(float)
 
-        ### TO COMPLETE
+        def _apply_filter_to_vector(x, filt_arr):
+            n = len(x)
+            X = np.fft.rfft(x, n=n)
 
-        return (sig, sr)
+            # prepare frequency response H of same length as X
+            if isinstance(filt_arr, np.ndarray) and filt_arr.ndim == 1:
+                # Case A: user already provided positive-frequency response matching rfft length
+                if len(filt_arr) == len(X):
+                    H = filt_arr
+                # Case B: user provided a time-domain impulse response -> FFT it
+                elif len(filt_arr) == n:
+                    H = np.fft.rfft(filt_arr, n=n)
+                else:
+                    raise ValueError(
+                        f"Filter length ({len(filt_arr)}) is incompatible with signal length ({n}). "
+                        "Provide either a positive-frequency response of length rfft(n) or an impulse response of length n."
+                    )
+            else:
+                # try to coerce to 1D array
+                farr = np.asarray(filt_arr).ravel()
+                if len(farr) == len(X):
+                    H = farr
+                elif len(farr) == n:
+                    H = np.fft.rfft(farr, n=n)
+                else:
+                    raise ValueError(
+                        f"Filter length ({len(farr)}) is incompatible with signal length ({n})."
+                    )
+
+            Y = X * H
+            y = np.fft.irfft(Y, n=n)
+            return y
+
+        # handle mono or multi-channel
+        if sig_float.ndim == 1:
+            filtered = _apply_filter_to_vector(sig_float, filt)
+        else:
+            # sig shape (N, C) -> apply per channel
+            channels = []
+            for ch in range(sig_float.shape[1]):
+                channels.append(_apply_filter_to_vector(sig_float[:, ch], filt))
+            filtered = np.stack(channels, axis=1)
+
+        # preserve original dtype if possible
+        if np.issubdtype(sig.dtype, np.integer):
+            # scale back to original integer range carefully (clip)
+            info = np.iinfo(sig.dtype)
+            filtered = np.clip(filtered, info.min, info.max).astype(sig.dtype)
+        else:
+            filtered = filtered.astype(sig.dtype)
+
+        return (filtered, sr)
 
     def add_bg(
         audio, dataset, num_sources=1, max_ms=5000, amplitude_limit=0.1
@@ -172,21 +247,88 @@ class AudioUtil:
         """
         sig, sr = audio
 
-        ### TO COMPLETE
+        # work with float copy
+        out = sig.astype(float).copy()
+        sig_len = len(out)
 
-        return audio
+        # gather class list once
+        classes = dataset.list_classes()
+
+        for _ in range(num_sources):
+            # pick a random class and a random example from that class
+            cls = random.choice(classes)
+            if dataset.naudio[cls] <= 0:
+                continue
+            idx = random.randint(0, dataset.naudio[cls] - 1)
+            bg_file = dataset[(cls, idx)]
+
+            # load, resample and truncate/pad background to max_ms
+            bg = AudioUtil.open(bg_file)
+            bg = AudioUtil.resample(bg, sr)
+            bg = AudioUtil.pad_trunc(bg, max_ms)
+
+            bg_sig = bg[0].astype(float)
+
+            # ensure bg_sig is at least as long as out (pad with zeros) or truncate
+            if len(bg_sig) < sig_len:
+                pad = np.zeros(sig_len - len(bg_sig))
+                bg_sig = np.concatenate((bg_sig, pad))
+            else:
+                bg_sig = bg_sig[:sig_len]
+
+            # scale background by a random factor up to amplitude_limit
+            amp = random.uniform(0.0, amplitude_limit)
+            bg_sig = bg_sig * amp
+
+            out = out + bg_sig
+
+        # avoid clipping
+        out = np.clip(out, -1.0, 1.0)
+
+        return (out, sr)
 
     def specgram(audio, Nft=512, fs2=11025) -> ndarray:
         """
         Compute a Spectrogram.
 
-        :param aud: The audio signal as a tuple (signal, sample_rate).
+        :param audio: The audio signal as a tuple (signal, sample_rate).
         :param Nft: The number of points of the FFT.
         :param fs2: The sampling frequency.
         """
-        ### TO COMPLETE
-        # stft /= float(2**8)
+        sig, sr = audio
+
+        # --- Resample if needed ---
+        if sr != fs2:
+            sig, sr = AudioUtil.resample((sig, sr), newsr=fs2)
+
+        # Ensure mono signal
+        if sig.ndim > 1:
+            sig = sig[:, 0]
+
+        # --- Crop signal so its length is a multiple of Nft ---
+        L = len(sig)
+        sig = sig[: L - (L % Nft)]
+        L = len(sig)
+
+        # If the signal is too short
+        if L == 0:
+            return np.zeros((Nft // 2, 0))
+
+        # --- Reshape into blocks of size Nft ---
+        audiomat = np.reshape(sig, (L // Nft, Nft))
+
+        # --- Windowing (Hamming) ---
+        window = np.hamming(Nft)
+        audioham = audiomat * window
+
+        # --- FFT row by row ---
+        stft = np.fft.fft(audioham, axis=1)
+
+        # Keep only positive frequencies
+        stft = np.abs(stft[:, : Nft // 2].T)
+
         return stft
+
 
     def get_hz2mel(fs2=11025, Nft=512, Nmel=20) -> ndarray:
         """
@@ -211,7 +353,17 @@ class AudioUtil:
         :param Nft: The number of points of the FFT.
         :param fs2: The sampling frequency.
         """
-        ### TO COMPLETE
+        # compute power spectrogram (freq_bins x time)
+        spec = AudioUtil.specgram(audio, Nft=Nft, fs2=fs2)
+
+        # get mel filterbank (Nmel x freq_bins)
+        mels = AudioUtil.get_hz2mel(fs2=fs2, Nft=Nft, Nmel=Nmel)
+
+        # apply mel filterbank -> (Nmel x time)
+        melspec = np.dot(mels, spec)
+
+        # numerical stability and convert to log scale (dB)
+        melspec = 10.0 * np.log10(np.maximum(melspec, 1e-10))
 
         return melspec
 

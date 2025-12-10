@@ -13,6 +13,8 @@ module lms_dsp (
 	ppd_debug_short_sum,
 	ppd_cfg_enable_fir,
 	ppd_cfg_enable_ppd,
+	ppd_cfg_pass_sum_signal,
+	ppd_cfg_red_sum_signal,
 	reset_reset_n);	
 
 	input		clk_clk;
@@ -28,5 +30,7 @@ module lms_dsp (
 	output	[31:0]	ppd_debug_short_sum;
 	input		ppd_cfg_enable_fir;
 	input		ppd_cfg_enable_ppd;
+	input		ppd_cfg_pass_sum_signal;
+	input		ppd_cfg_red_sum_signal;
 	input		reset_reset_n;
 endmodule

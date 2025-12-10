@@ -23,16 +23,30 @@ output_array = load_array("fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_d
 input_array  = load_array("fpga/LimeSDR-Mini_lms7_lelec210x/ip/packet_presence_detection/testbench/mentor/input_fpga.txt", nbit, qbit)
 
 
-fig, ax = plt.subplots(2,1,figsize=(12,8))
-ax[0].plot(np.arange(len(output_array)), np.real(output_array) , label = "Output of Packet Presence Detection")
-ax[0].plot(np.arange(len(input_array)),  np.real(input_array)  , label = "Input  of Packet Presence Detection")
-ax[0].set_ylabel("Real part")
+# fig, ax = plt.subplots(2,1,figsize=(12,8))
+# ax[0].plot(np.arange(len(output_array)), np.real(output_array) , label = "Output of Packet Presence Detection")
+# ax[0].plot(np.arange(len(input_array)),  np.real(input_array)  , label = "Input  of Packet Presence Detection")
+# ax[0].set_ylabel("Real part")
 
-ax[1].plot(np.arange(len(output_array)), np.imag(output_array) )
-ax[1].plot(np.arange(len(input_array)),  np.imag(input_array)  )
-ax[1].set_ylabel("Imaginary part")
+# ax[1].plot(np.arange(len(output_array)), np.imag(output_array) )
+# ax[1].plot(np.arange(len(input_array)),  np.imag(input_array)  )
+# ax[1].set_ylabel("Imaginary part")
 
-ax[1].set_xlabel("Sample number")
-ax[0].legend()
+# ax[1].set_xlabel("Sample number")
+# ax[0].legend()
+# plt.show()
+
+
+fig, ax = plt.subplots(1,1,figsize=(12,8))
+ax.plot(np.arange(len(output_array)), np.real(output_array) , label = "Output of Packet Presence Detection")
+ax.plot(np.arange(len(input_array)),  np.real(input_array)  , label = "Input  of Packet Presence Detection")
+ax.set_ylabel("Real part")
+
+# ax[1].plot(np.arange(len(output_array)), np.imag(output_array) )
+# ax[1].plot(np.arange(len(input_array)),  np.imag(input_array)  )
+# ax[1].set_ylabel("Imaginary part")
+
+ax.set_xlabel("Sample number")
+ax.legend()
 plt.show()
 pass

@@ -138,7 +138,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 868e6
+    value: 870e6
   states:
     bus_sink: false
     bus_source: false
@@ -556,7 +556,6 @@ connections:
 - [fsk_synchronization_0, '0', fsk_demodulation_0, '0']
 - [limesdr_fpga_flag_detector_0, '0', fsk_synchronization_0, '0']
 - [limesdr_fpga_flag_detector_0, '0', low_pass_filter_0, '0']
-- [limesdr_fpga_flag_detector_0, SignalPow, fsk_synchronization_0, SignalPow]
 - [limesdr_fpga_source_0, '0', fsk_onQuery_noise_estimation_0, '0']
 - [limesdr_fpga_source_0, '0', limesdr_fpga_flag_detector_0, '0']
 - [limesdr_fpga_source_0, '0', qtgui_sink_x_0, '0']

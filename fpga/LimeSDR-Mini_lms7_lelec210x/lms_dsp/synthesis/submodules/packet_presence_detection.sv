@@ -206,14 +206,15 @@ module dual_running_sum #(
 	assign long_shift_full = (long_counter==LONG_SHIFT_LEN);
 	
 	
-	reg  [(LONG_SUM_WIDTH +8 -1):0] long_shift_rescale;
-	wire [(SHORT_SUM_WIDTH+6 -1):0] short_sum_rescale;
+	logic  [(LONG_SUM_WIDTH +8 -1):0] long_shift_rescale;
+	wire   [(SHORT_SUM_WIDTH+6 -1):0] short_sum_rescale;
 
 	
 	// ------------------- TO DO : START -------------------
-	assign long_shift_rescale = long_sum_reg ;
+//	assign long_shift_rescale = long_sum_reg * K;
+	always_ff @(posedge clock) long_shift_rescale <= long_sum_reg * K;
 	
-	assign short_sum_rescale  = short_sum_reg;
+	assign short_sum_rescale  = short_sum_reg << 6;
 	
 	// ------------------- TO DO : END   -------------------
 	

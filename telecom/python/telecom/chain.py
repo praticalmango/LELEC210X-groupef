@@ -5,14 +5,49 @@ BIT_RATE = 50e3
 PREAMBLE = np.array([int(bit) for bit in f"{0xAAAAAAAA:0>32b}"])
 SYNC_WORD = np.array([int(bit) for bit in f"{0x3E2A54B7:0>32b}"])
 
-FPGA_FIR_TAPS =  np.array([-0.001201261290430126, 0.0020488944185569607, -0.0020751053507837938, 4.910806933254215E-18, 0.004754535968663148, -0.00987450755161552, 0.00995675888032359, -1.4391882903962387E-17, -0.018922538981281996, 0.036214375130954504, -0.03468641976116993, 2.4803862788187382E-17, 0.06848299151299582, -0.15293237705130486, 0.22297239138994396, 0.7505245253702963, 0.22297239138994396, -0.15293237705130486, 0.06848299151299582, 2.4803862788187385E-17, -0.034686419761169936, 0.036214375130954504, -0.018922538981282003, -1.4391882903962393E-17, 0.00995675888032359, -0.009874507551615532, 0.004754535968663151, 4.910806933254215E-18, -0.0020751053507837946, 0.0020488944185569607, -0.001201261290430126])  # Example coefficients
+FPGA_FIR_TAPS = np.array(
+    [
+        -0.001201261290430126,
+        0.0020488944185569607,
+        -0.0020751053507837938,
+        4.910806933254215e-18,
+        0.004754535968663148,
+        -0.00987450755161552,
+        0.00995675888032359,
+        -1.4391882903962387e-17,
+        -0.018922538981281996,
+        0.036214375130954504,
+        -0.03468641976116993,
+        2.4803862788187382e-17,
+        0.06848299151299582,
+        -0.15293237705130486,
+        0.22297239138994396,
+        0.7505245253702963,
+        0.22297239138994396,
+        -0.15293237705130486,
+        0.06848299151299582,
+        2.4803862788187385e-17,
+        -0.034686419761169936,
+        0.036214375130954504,
+        -0.018922538981282003,
+        -1.4391882903962393e-17,
+        0.00995675888032359,
+        -0.009874507551615532,
+        0.004754535968663151,
+        4.910806933254215e-18,
+        -0.0020751053507837946,
+        0.0020488944185569607,
+        -0.001201261290430126,
+    ]
+)  # Example coefficients
+
 
 class Chain:
     name: str = ""
 
     # Communication parameters
     bit_rate: float = BIT_RATE
-    freq_dev: float = BIT_RATE / 4
+    freq_dev: float = BIT_RATE / 2
 
     osr_tx: int = 64
     osr_rx: int = 8
@@ -23,7 +58,7 @@ class Chain:
     payload_len: int = 8 * 100  # Number of bits per packet
 
     # Simulation parameters
-    n_packets: int = 100  # Number of sent packets
+    n_packets: int = 500  # Number of sent packets
 
     # Channel parameters
     sto_val: float = 0
@@ -31,16 +66,16 @@ class Chain:
 
     cfo_val: float = np.nan
     cfo_range: tuple[float, float] = (
-        8_000,
-        10_000,  # defines the CFO range when random (in Hz) #(1000 in old repo)
+        -1000,
+        1000,  # defines the CFO range when random (in Hz) #(1000 in old repo)
     )
 
     EsN0_range: np.ndarray = np.arange(0, 30, 1)
 
     # Lowpass filter parameters
-    taps   : np.ndarray = FPGA_FIR_TAPS #specify None to make the simulator recompute the filter based on below spec
+    taps: np.ndarray = FPGA_FIR_TAPS  # specify None to make the simulator recompute the filter based on below spec
     numtaps: int = 100
-    cutoff : float = 150e3  # BIT_RATE * osr_rx / 2.0001  # or 2*BIT_RATE,...
+    cutoff: float = 150e3  # BIT_RATE * osr_rx / 2.0001  # or 2*BIT_RATE,...
 
     # Tx methods
 
@@ -79,7 +114,7 @@ class Chain:
 
     # Rx methods
     ideal_preamble_detect: bool = False
- 
+
     use_dynamic_ppd: bool = False
 
     def preamble_detect(self, y: np.array) -> int | None:
@@ -91,7 +126,7 @@ class Chain:
             or None if not found.
         """
         raise NotImplementedError
-    
+
     def preamble_detect_ppd(self, y: np.array) -> int | None:
         """
         Detect the preamble in a given received signal with sofft thresholding.
@@ -124,14 +159,16 @@ class Chain:
         """
         raise NotImplementedError
 
+
     def demodulate(self, y: np.array) -> np.array:
         """
-        Demodulates the received signal.
+        Demodulates the received signal using non-coherent detection.
 
-        :param y: The received signal, (N * R,).
-        :return: The signal, after demodulation.
+        :param y: The received signal, shape (N * R_RX,)
+        :return: Detected symbols, shape (N,)
         """
         raise NotImplementedError
+
 
 
 class BasicChain(Chain):
@@ -141,7 +178,7 @@ class BasicChain(Chain):
 
     ideal_preamble_detect = True
 
-    use_dynamic_ppd       = True
+    use_dynamic_ppd = True
 
     def preamble_detect_ppd(self, y):
         """Detect a preamble computing the received energy (average on a window)."""
@@ -182,18 +219,52 @@ class BasicChain(Chain):
 
         return None
 
-    ideal_cfo_estimation = True
+    ideal_cfo_estimation = False
+    
+    # def cfo_estimation(self, y):
+    #     """Estimates CFO using Moose algorithm, on first samples of preamble."""
+    #     # TO DO: extract 2 blocks of size N*R at the start of y
+    #     N = 4  # You can change this value if needed
+    #     # TO DO: apply the Moose algorithm on these two blocks to estimate the CFO
+    #     cfo_est = 0
+
+    #     return cfo_est
 
     def cfo_estimation(self, y):
         """Estimates CFO using Moose algorithm, on first samples of preamble."""
-        # TO DO: extract 2 blocks of size N*R at the start of y
-        N = 4  # You can change this value if needed
-        # TO DO: apply the Moose algorithm on these two blocks to estimate the CFO
-        cfo_est = 0
-
+        # Extract 2 blocks of size N*R at the start of y
+        N = 4  # Number of bits per block
+        R = self.osr_rx  # Receiver oversampling factor
+        block_size = N * R  # Number of samples per block
+        
+        # Check if we have enough samples
+        if len(y) < 2 * block_size:
+            raise ValueError(f"Not enough samples for CFO estimation. Need {2 * block_size}, got {len(y)}")
+        
+        # Extract the two consecutive blocks
+        y1 = y[:block_size]  # First block
+        y2 = y[block_size:2 * block_size]  # Second block
+        
+        # Apply the Moose algorithm on these two blocks to estimate the CFO
+        # Calculate the correlation sum: sum(y2[l] * conj(y1[l]))
+        correlation_sum = np.sum(y2 * np.conj(y1))
+        
+        # Get the angle (argument) of the correlation sum
+        angle = np.angle(correlation_sum)
+        
+        # Calculate the CFO estimate using Moose formula
+        # Δf_c = angle / (2π * (N_i * T / R_RX))
+        # where N_i = N * R_RX and T = 1/B (symbol period)
+        T = 1.0 / self.bit_rate  # Symbol period
+        denominator = 2 * np.pi * (block_size * T / R)
+        
+        cfo_est = angle / denominator
+        
         return cfo_est
+    
 
-    ideal_sto_estimation = True
+
+    ideal_sto_estimation = False
 
     def sto_estimation(self, y):
         """Estimates symbol timing (fractional) based on phase shifts."""
@@ -215,6 +286,25 @@ class BasicChain(Chain):
 
         return np.mod(save_i + 1, R)
 
+    # def demodulate(self, y):
+    #     """Non-coherent demodulator."""
+    #     R = self.osr_rx  # Receiver oversampling factor
+    #     nb_syms = len(y) // R  # Number of CPFSK symbols in y
+
+    #     # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
+    #     y = np.resize(y, (nb_syms, R))
+
+    #     # TO DO: generate the reference waveforms used for the correlation
+    #     # hint: look at what is done in modulate() in chain.py
+
+    #     # TO DO: compute the correlations with the two reference waveforms (r0 and r1)
+
+    #     # TO DO: performs the decision based on r0 and r1
+
+    #     bits_hat = np.zeros(nb_syms, dtype=int)
+
+    #     return bits_hat
+    
     def demodulate(self, y):
         """Non-coherent demodulator."""
         R = self.osr_rx  # Receiver oversampling factor
@@ -223,13 +313,23 @@ class BasicChain(Chain):
         # Group symbols together, in a matrix. Each row contains the R samples over one symbol period
         y = np.resize(y, (nb_syms, R))
 
-        # TO DO: generate the reference waveforms used for the correlation
-        # hint: look at what is done in modulate() in chain.py
+        # Generate the reference waveforms used for the correlation
+        # Based on what's done in modulate()
+        fd = self.freq_dev  # Frequency deviation, Delta_f
+        B = self.bit_rate   # B=1/T
+        n = np.arange(R)
+        
+        # Reference waveforms - same as in modulate() but without cumulative phase
+        # (non-coherent detection ignores absolute phase)
+        ref1 = np.exp(-1j * 2 * np.pi * fd * n / (R * B))  # For bit 1
+        ref0 = np.exp(1j * 2 * np.pi * fd * n / (R * B)) # For bit -1/0
 
-        # TO DO: compute the correlations with the two reference waveforms (r0 and r1)
+        # Compute the correlations with the two reference waveforms (r1 and r0)
+        r1 = np.sum(y * ref1, axis=1) / R  # Correlation with reference for bit 1
+        r0 = np.sum(y * ref0, axis=1) / R  # Correlation with reference for bit 0
 
-        # TO DO: performs the decision based on r0 and r1
-
-        bits_hat = np.zeros(nb_syms, dtype=int)
+        # Perform the decision based on |r1| and |r0|
+        # For binary decision: if |r1| > |r0| then bit=1, else bit=0
+        bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
 
         return bits_hat
