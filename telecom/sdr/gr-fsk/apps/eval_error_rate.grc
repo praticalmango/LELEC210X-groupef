@@ -92,7 +92,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '2'
+    value: '8'
   states:
     bus_sink: false
     bus_source: false
@@ -171,7 +171,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 868e6
+    value: 870.009e6
   states:
     bus_sink: false
     bus_source: false
@@ -334,7 +334,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    amp: 10**(noise_pow_dB/20)
+    amp: '0'
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -552,7 +552,7 @@ blocks:
     bus_structure: null
     coordinate: [624, 324.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: qtgui_sink_x_0
   id: qtgui_sink_x
   parameters:
@@ -581,7 +581,7 @@ blocks:
     bus_structure: null
     coordinate: [392, 140.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: virtual_sink_0
   id: virtual_sink
   parameters:
@@ -627,6 +627,7 @@ connections:
 - [fsk_packet_parser_0, '0', virtual_sink_0, '0']
 - [fsk_packet_parser_0, '0', zeromq_pub_sink_0, '0']
 - [fsk_synchronization_0, '0', fsk_demodulation_0, '0']
+- [limesdr_fpga_flag_detector_0, '0', fsk_synchronization_0, '0']
 - [limesdr_fpga_flag_detector_0, '0', low_pass_filter_0, '0']
 - [limesdr_fpga_flag_detector_0, SignalPow, fsk_synchronization_0, SignalPow]
 - [limesdr_fpga_source_0, '0', blocks_add_xx_0, '0']

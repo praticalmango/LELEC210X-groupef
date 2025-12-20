@@ -104,7 +104,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '2'
+    value: '8'
   states:
     bus_sink: false
     bus_source: false
@@ -150,7 +150,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 870e6
+    value: 870.009e6
   states:
     bus_sink: false
     bus_source: false
@@ -437,6 +437,7 @@ blocks:
   id: fsk_synchronization
   parameters:
     Grx: rx_gain
+    N_Moose: N_Moose
     affinity: ''
     alias: ''
     comment: ''

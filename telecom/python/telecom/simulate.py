@@ -272,6 +272,8 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
     BER_th = 0.5 * erfc(np.sqrt(10 ** (SNR_th / 10.0) / 2))
     BER_th_BPSK = 0.5 * erfc(np.sqrt(10 ** (SNR_th / 10.0)))
     BER_th_noncoh = 0.5 * np.exp(-(10 ** (SNR_th / 10.0)) / 2)
+    
+    print(f"here")
 
     # Bit error rate
     _fig, ax = plt.subplots(constrained_layout=True)
@@ -297,6 +299,7 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
     plt.show()
 
     # Bit error rate
+    print(f"BER: {BER}")
     _fig, ax = plt.subplots(constrained_layout=True)
     ax.plot(EsN0s_dB, BER, "-s", label="Simulation")
     ax.plot(EsN0_th, BER_th, label="AWGN Th. FSK")
@@ -359,6 +362,8 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
     plt.xlabel("$E_{s}/N_{0}$ [dB]")
     plt.grid()
     plt.show()
+    
+    print(f"BER: {BER}")
 
     # Save simulation outputs (for later post-processing, building new figures,...)
     filename = "sim_outputs"

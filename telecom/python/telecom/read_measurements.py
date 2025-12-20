@@ -55,7 +55,7 @@ def simulation_output_callback(
 @click.option(
     "--simulation-output",
     type=click.Path(dir_okay=False, path_type=Path),
-    default=Path(__file__).parents[2] / "sim_outputs.csv",
+    default=Path(__file__).parents[2] / "sim_outputs3.csv",
     callback=simulation_output_callback,
     show_default=True,
 )
@@ -135,8 +135,8 @@ def main(
             df.hist(column="cfo")
             plt.title("Histogram of estimated CFO")
             plt.suptitle("")
-            plt.xlabel("Number")
-            plt.ylabel("Frequency (Hz)")
+            plt.ylabel("Number")
+            plt.xlabel("Frequency (Hz)")
 
             if group_by_grx:
                 agg = (
@@ -176,7 +176,18 @@ def main(
                 ax[0].plot(EsN0_db, sim_BER, label="Simulation")
 
             _fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(10, 4))
-            ax[0].plot(agg["esn0_mean"], ber, "-s", label="Measurement")
+            ax[0].plot(agg["esn0_mean"], ber, "-s", label="Measurement", color='tab:purple')
+            
+            if simulation_output is not None:
+                ax[0].plot(
+                    EsN0_db,
+                    BER_th_noncoh,
+                    label="AWGN Th. FSK non-coh.",
+                    color='tab:green',
+                )
+                ax[0].plot(EsN0_db, sim_BER, label="Simulation",  color='tab:blue')
+            
+            
             ax[0].set_ylabel("BER")
             ax[0].set_xlabel("$E_{s}/N_{0}$ [dB]")
             ax[0].set_yscale("log")
@@ -185,15 +196,16 @@ def main(
             ax[0].set_title("Average Bit Error Rate")
             ax[0].legend()
 
-            ax[1].plot(agg["esn0_mean"], agg["per_mean"], "-s", label="Measurement")
+            ax[1].plot(agg["esn0_mean"], agg["per_mean"], "-s", label="Measurement",color='tab:purple')
 
             if simulation_output is not None:
                 ax[1].plot(
                     EsN0_db,
                     1 - (1 - BER_th_noncoh) ** num_bits,
                     label="AWGN Th. FSK non-coh.",
+                    color='tab:green',
                 )
-                ax[1].plot(EsN0_db, sim_PER, label="Simulation")
+                ax[1].plot(EsN0_db, sim_PER, label="Simulation",  color='tab:blue')
 
             ax[1].set_ylabel("PER")
             ax[1].set_xlabel("$E_{s}/N_{0}$ [dB]")
@@ -204,6 +216,24 @@ def main(
             ax[1].legend()
 
             plt.show()
+            
+            #     # Save simulation outputs (for later post-processing, building new figures,...)
+            # filename = "meas_outputs"
+            # save_var = np.column_stack(
+            #     (
+            #         EsN0s_dB,
+            #         BER,
+            #         PER,
+            #         RMSE_cfo,
+            #         RMSE_sto,
+            #         preamble_mis,
+            #         preamble_false,
+            #     )
+            # )
+            # np.savetxt(f"{filename}.csv", save_var, delimiter="\t")
+            
+            
+            
 
 
 if __name__ == "__main__":

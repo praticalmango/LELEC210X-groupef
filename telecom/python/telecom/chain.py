@@ -47,10 +47,10 @@ class Chain:
 
     # Communication parameters
     bit_rate: float = BIT_RATE
-    freq_dev: float = BIT_RATE / 2
+    freq_dev: float = BIT_RATE / 2 # changer en /2 pour augmenter les perfs à fond 
 
     osr_tx: int = 64
-    osr_rx: int = 8
+    osr_rx: int = 4
 
     preamble: np.ndarray = PREAMBLE
     sync_word: np.ndarray = SYNC_WORD
@@ -58,13 +58,14 @@ class Chain:
     payload_len: int = 8 * 100  # Number of bits per packet
 
     # Simulation parameters
-    n_packets: int = 500  # Number of sent packets
+    n_packets: int = 1000  # Number of sent packets
 
     # Channel parameters
     sto_val: float = 0
     sto_range: float = 10 / BIT_RATE  # defines the delay range when random
 
     cfo_val: float = np.nan
+    # cfo_val: float = 5000
     cfo_range: tuple[float, float] = (
         -1000,
         1000,  # defines the CFO range when random (in Hz) #(1000 in old repo)
@@ -233,7 +234,7 @@ class BasicChain(Chain):
     def cfo_estimation(self, y):
         """Estimates CFO using Moose algorithm, on first samples of preamble."""
         # Extract 2 blocks of size N*R at the start of y
-        N = 4  # Number of bits per block
+        N = 8  # Number of bits per block
         R = self.osr_rx  # Receiver oversampling factor
         block_size = N * R  # Number of samples per block
         

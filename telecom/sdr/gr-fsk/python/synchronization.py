@@ -28,10 +28,10 @@ from .utils import logging, measurements_logger
 
 
 
-def cfo_estimation(y,B, R, Fdev):
+def cfo_estimation(y,B, R, Fdev,N):
     """Estimates CFO using Moose algorithm, on first samples of preamble."""
     # Extract 2 blocks of size N*R at the start of y
-    N = 2  # Number of bits per block
+    # N = 2  # Number of bits per block
     block_size = N * R  # Number of samples per block
     
     # Check if we have enough samples
