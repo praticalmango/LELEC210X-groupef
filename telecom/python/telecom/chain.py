@@ -50,7 +50,7 @@ class Chain:
     freq_dev: float = BIT_RATE / 2 # changer en /2 pour augmenter les perfs à fond 
 
     osr_tx: int = 64
-    osr_rx: int = 4
+    osr_rx: int = 8
 
     preamble: np.ndarray = PREAMBLE
     sync_word: np.ndarray = SYNC_WORD
@@ -58,7 +58,7 @@ class Chain:
     payload_len: int = 8 * 100  # Number of bits per packet
 
     # Simulation parameters
-    n_packets: int = 1000  # Number of sent packets
+    n_packets: int = 200  # Number of sent packets
 
     # Channel parameters
     sto_val: float = 0
@@ -220,7 +220,7 @@ class BasicChain(Chain):
 
         return None
 
-    ideal_cfo_estimation = False
+    ideal_cfo_estimation = True
     
     # def cfo_estimation(self, y):
     #     """Estimates CFO using Moose algorithm, on first samples of preamble."""

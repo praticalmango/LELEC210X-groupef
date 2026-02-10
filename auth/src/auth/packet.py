@@ -67,7 +67,9 @@ class PacketUnwrapper:
             packet[:HEADER_LEN]
         )
         # Validate correct packet length w.r.t. payload
+        print(f"header length {HEADER_LEN}, payload length {payload_length}, tag length {TAG_LEN}")
         if len(packet) != MIN_LEN + payload_length:
+            print(f"len of packet {len(packet)}, expected {MIN_LEN + payload_length}")
             raise InvalidPacket("Wrong payload length.")
         if self.authenticate:
             # Validate tag in constant time

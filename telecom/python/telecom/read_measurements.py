@@ -101,6 +101,21 @@ def main(
         df = pd.DataFrame.from_dict(data)
         if not quiet:
             click.echo(df)
+            
+                # Create a single plot instead of 1 row, 2 columns
+        _figio, axio = plt.subplots(constrained_layout=True, figsize=(5, 4))
+
+        axio.set_ylabel("Measured EsN0 (dB)")
+
+        if group_by_grx:
+            # Plot directly to the single 'ax' object
+            df.boxplot(ax=axio, column="esn0", by="Grx", grid=True)
+            axio.set_xlabel("RX Gain used (dB)")
+        else:
+            # Plot directly to the single 'ax' object
+            df.boxplot(ax=axio, column="esn0", by="N0", grid=True)
+            axio.set_xlabel("N0 (dB)")
+        axio.set_title("Measured EsN0 distribution")
 
         if plot:
 
@@ -131,6 +146,9 @@ def main(
             ax[1].set_ylabel("Measured EsN0 (dB)")
             # ax[1].grid(True)
             ax[1].set_title("Measured EsN0 distribution after outlier removal")
+            
+
+
 
             df.hist(column="cfo")
             plt.title("Histogram of estimated CFO")
