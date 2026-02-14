@@ -1,9 +1,20 @@
 # ruff: noqa: N806
 import numpy as np
+from scipy import signal
+
 
 BIT_RATE = 50e3
 PREAMBLE = np.array([int(bit) for bit in f"{0xAAAAAAAA:0>32b}"])
 SYNC_WORD = np.array([int(bit) for bit in f"{0x3E2A54B7:0>32b}"])
+
+
+# Barker 11 sequence: 111 000 100 10
+# We append this to the end of a "1010..." sequence to keep total length 32
+barker_11 = "11100010010"
+dotting   = "1010" * 5 + "1"  # 21 bits of alternating 1s and 0s
+
+# Combine them
+# PREAMBLE = np.array([int(bit) for bit in dotting + barker_11])
 
 FPGA_FIR_TAPS = np.array(
     [
@@ -50,7 +61,7 @@ class Chain:
     freq_dev: float = BIT_RATE / 2 # changer en /2 pour augmenter les perfs à fond 
 
     osr_tx: int = 64
-    osr_rx: int = 8
+    osr_rx: int = 4
 
     preamble: np.ndarray = PREAMBLE
     sync_word: np.ndarray = SYNC_WORD
@@ -220,7 +231,7 @@ class BasicChain(Chain):
 
         return None
 
-    ideal_cfo_estimation = True
+    ideal_cfo_estimation = False
     
     # def cfo_estimation(self, y):
     #     """Estimates CFO using Moose algorithm, on first samples of preamble."""
@@ -267,26 +278,243 @@ class BasicChain(Chain):
 
     ideal_sto_estimation = False
 
-    def sto_estimation(self, y):
-        """Estimates symbol timing (fractional) based on phase shifts."""
+    # def sto_estimation(self, y):
+    #     """Estimates symbol timing (fractional) based on phase shifts."""
+    #     R = self.osr_rx
+
+    #     # Computation of derivatives of phase function
+    #     phase_function = np.unwrap(np.angle(y))
+    #     phase_derivative_1 = phase_function[1:] - phase_function[:-1]
+    #     phase_derivative_2 = np.abs(phase_derivative_1[1:] - phase_derivative_1[:-1])
+
+    #     sum_der_saved = -np.inf
+    #     save_i = 0
+    #     for i in range(0, R):
+    #         sum_der = np.sum(phase_derivative_2[i::R])  # Sum every R samples
+
+    #         if sum_der > sum_der_saved:
+    #             sum_der_saved = sum_der
+    #             save_i = i
+
+    #     return np.mod(save_i + 1, R)
+    
+    
+    barker_pattern = np.array([int(bit) for bit in "11100010010"])
+
+    
+    # def sto_estimation(self, y, known_preamble_bits=barker_pattern):
+    #     """
+    #     Estimates timing by correlating instantaneous frequency with a known preamble.
+        
+    #     Args:
+    #         y: Received complex signal
+    #         known_preamble_bits: List or array of bits, e.g., [1, 0, 1, 0]
+    #     """
+    #     R = self.osr_rx
+        
+    #     # Create the reference pattern JUST for the Barker part
+        
+    #     # 1. Get Instantaneous Frequency of received signal
+    #     # (Same as before - demodulate to baseband)
+    #     phase_function = np.unwrap(np.angle(y))
+    #     rx_freq = np.diff(phase_function)
+        
+    #     # 2. Generate the "Ideal" Preamble Waveform
+    #     # Map bits 0 -> -1 and 1 -> +1 (or whatever your modulation index implies)
+    #     # Then repeat each bit R times to match the oversampling rate.
+    #     # Note: If you use Gaussian FSK (GFSK), apply a Gaussian filter to this `tx_ref`.
+    #     tx_syms = 2 * np.array(known_preamble_bits) - 1 # Map [0,1] to [-1, 1]
+    #     tx_ref = np.repeat(tx_syms, R)
+        
+    #     # 3. Perform Cross-Correlation (Convolution)
+    #     # "valid" mode means we only compute overlaps where the signals fully align
+    #     correlation = signal.correlate(rx_freq, tx_ref, mode='valid')
+        
+    #     # 4. Find the peak
+    #     # The index of the max value is the start of the preamble
+    #     peak_index = np.argmax(np.abs(correlation))
+        
+    #     # If you just need the fractional offset within a symbol:
+    #     fractional_offset = np.mod(peak_index, R)
+        
+    #     return fractional_offset
+    
+    
+    # def sto_estimation(self, y, known_preamble_bits=barker_pattern):
+    #     """
+    #     Estimates timing by correlating instantaneous frequency with a known preamble.
+    #     Optimized to search only a limited window.
+    #     """
+    #     R = self.osr_rx
+        
+    #     # --- OPTIMIZATION: Define Search Window ---
+    #     # We expect the preamble to start within the first 'N' symbols.
+    #     # Let's say we search over a window of:
+    #     # Length of Preamble + Max Expected Delay (e.g., 50 symbols)
+    #     # If the buffer 'y' is huge, this saves massive computation.
+        
+    #     # Length of the pattern we are looking for
+    #     L_pattern = len(known_preamble_bits) * R
+        
+    #     # Search margin: How late can the packet arrive? (e.g., 100 symbols late)
+    #     margin_symbols = 100 
+    #     search_len = L_pattern + (margin_symbols * R)
+        
+    #     # Safety check: Don't slice more than we have
+    #     search_len = min(search_len, len(y))
+        
+    #     # Slice the signal to just the search window
+    #     y_search = y[:search_len]
+
+    #     # 1. Get Instantaneous Frequency of the SEARCH WINDOW only
+    #     phase_function = np.unwrap(np.angle(y_search))
+    #     rx_freq = np.diff(phase_function)
+        
+    #     # 2. Generate the "Ideal" Preamble Waveform
+    #     tx_syms = 2 * np.array(known_preamble_bits) - 1
+    #     tx_ref = np.repeat(tx_syms, R)
+        
+    #     # 3. Perform Cross-Correlation
+    #     correlation = signal.correlate(rx_freq, tx_ref, mode='valid')
+        
+    #     # 4. Find the peak
+    #     # This index is relative to the start of 'y'
+    #     peak_index = np.argmax(np.abs(correlation))
+        
+    #     # --- CRITICAL UNDERSTANDING ---
+    #     # 'peak_index' is the start of the Barker code in your buffer.
+    #     # To get the start of the PAYLOAD, you usually need:
+    #     # payload_start_index = peak_index + len(tx_ref)
+        
+    #     # For STO (fractional timing):
+    #     fractional_offset = np.mod(peak_index, R)
+        
+    #     # You likely want to return the integer offset too!
+    #     # return fractional_offset, peak_index
+    #     return fractional_offset
+    
+    # def sto_estimation(self, y): #version avec dérivée
+    #     """
+    #     Estimates fractional timing offset using the 'Dotting' (1010...) part of the preamble.
+    #     Uses Differential Correlation which is more robust to noise than raw phase derivatives.
+    #     """
+    #     R = self.osr_rx
+        
+    #     # 1. Focus on the "Dotting" part of the preamble
+    #     # The preamble starts with "1010..." (21 bits). 
+    #     # We take a safe window (e.g., first 16 bits) to avoid hitting the Barker code edge.
+    #     n_dotting_bits = 16 
+    #     search_len = n_dotting_bits * R
+        
+    #     # Safety: ensure we have enough samples
+    #     if len(y) < search_len:
+    #         search_len = len(y)
+        
+    #     y_segment = y[:search_len]
+        
+    #     # 2. Compute "Delay-and-Multiply" (Differential Detection)
+    #     # This converts FSK tones into a complex DC-like signal where:
+    #     # bit 1 (+f) -> rotates pos, bit 0 (-f) -> rotates neg.
+    #     # This avoids 'np.unwrap' and 'np.diff' which are unstable in noise.
+    #     discriminator_out = y_segment[1:] * np.conj(y_segment[:-1])
+        
+    #     # 3. Create the Reference for "1010..." pattern
+    #     # In delay-and-multiply domain:
+    #     # Symbol '1' (freq +h) -> exp(j * sensitivity)
+    #     # Symbol '0' (freq -h) -> exp(-j * sensitivity)
+    #     # We don't need exact sensitivity, just the sign pattern: +1, -1.
+        
+    #     # Create pattern: 1, 0, 1, 0... mapped to +1, -1
+    #     # (Assuming the preamble starts with 1. If it starts with 0, just flip sign or take abs)
+    #     dotting_bits = np.resize([1, 0], n_dotting_bits) 
+    #     tx_syms = 2 * dotting_bits - 1 # [+1, -1, +1, -1...]
+        
+    #     # Upsample to match OSR (repeat each symbol R times)
+    #     # Note: We use R-1 because 'discriminator_out' is length N-1
+    #     # But for correlation shape matching, standard R is fine.
+    #     ref_pattern = np.repeat(tx_syms, R)
+        
+    #     # Trim ref to match discriminator output length if needed
+    #     ref_pattern = ref_pattern[:len(discriminator_out)]
+        
+    #     # 4. Cross-Correlate
+    #     # We look for the alignment of the 1010 square wave
+    #     # We use the Real part because we expect the phase rotation direction to match
+    #     correlation = np.abs(signal.correlate(np.angle(discriminator_out), ref_pattern, mode='valid'))
+        
+    #     # 5. Find the Peak
+    #     peak_index = np.argmax(correlation)
+        
+    #     # 6. Return Fractional Offset
+    #     # We only care about the offset modulo R to align the symbol grid.
+    #     # The Frame Sync (in simulate.py) will handle the integer symbol shifts.
+    #     return np.mod(peak_index, R)
+    
+    def sto_estimation(self, y): #version avec oerder Meyr
+        """
+        Estimates fractional timing offset using the 'Dotting' (1010...) preamble.
+        Uses the Oerder-Meyr (Squaring) method to recover the symbol clock tone.
+        """
         R = self.osr_rx
-
-        # Computation of derivatives of phase function
-        phase_function = np.unwrap(np.angle(y))
-        phase_derivative_1 = phase_function[1:] - phase_function[:-1]
-        phase_derivative_2 = np.abs(phase_derivative_1[1:] - phase_derivative_1[:-1])
-
-        sum_der_saved = -np.inf
-        save_i = 0
-        for i in range(0, R):
-            sum_der = np.sum(phase_derivative_2[i::R])  # Sum every R samples
-
-            if sum_der > sum_der_saved:
-                sum_der_saved = sum_der
-                save_i = i
-
-        return np.mod(save_i + 1, R)
-
+        
+        # 1. Select the Preamble Window
+        # We know the first 32 bits are 101010...
+        # We take the first 24 bits to be safe and avoid edge effects with the Sync Word.
+        n_bits_to_use = 24
+        window_len = n_bits_to_use * R
+        
+        # Safety check
+        if len(y) < window_len:
+            window_len = len(y)
+            
+        y_segment = y[:window_len]
+        
+        # 2. Compute the Signal Magnitude (Non-linearity)
+        # For MSK/FSK, the instantaneous frequency is a PAM signal.
+        # We approximate the 'energy' of the transition by taking the absolute value 
+        # of the differentiated phase.
+        phase_function = np.unwrap(np.angle(y_segment))
+        inst_freq = np.diff(phase_function)
+        
+        # Taking the absolute value of the frequency creates a strong tone at the Symbol Rate.
+        # (Because 1010... creates a square wave +f, -f, +f, -f. Abs value makes it +f, +f...)
+        # Wait, actually for STO on 1010..., the squared magnitude of the *signal* is constant.
+        # For FSK STO, we want to look at the *Instantaneous Frequency* periodicity.
+        
+        # Refined Oerder-Meyr for CPFSK:
+        # We want to find the phase of the clock component in the envelope.
+        # Simple approach: Correlate the Instantaneous Freq with a local 1010 clock.
+        
+        # Create a local clock reference (1, -1, 1, -1...) matched to OSR
+        # We construct a sine wave at the symbol rate 1/T.
+        t = np.arange(len(inst_freq))
+        # The '1010' pattern has a fundamental frequency of 1/(2T). 
+        # But we want to lock to the symbol boundaries.
+        
+        # Let's stick to the Robust Correlation method (Delay-and-Multiply)
+        # It is strictly better than the derivative method you had.
+        
+        # Map 1010... to +1, -1...
+        ref_bits = np.resize([1, 0], n_bits_to_use)
+        ref_seq = 2 * ref_bits - 1 # +1, -1, +1, -1
+        ref_waveform = np.repeat(ref_seq, R)
+        
+        # Truncate to match diff length
+        ref_waveform = ref_waveform[:len(inst_freq)]
+        
+        # Correlate Instantaneous Frequency with Expected Frequency Pattern
+        # We align the received +/- frequency shifts with our expected +/- shifts.
+        corr = np.abs(signal.correlate(inst_freq, ref_waveform, mode='valid'))
+        
+        # Find the peak
+        best_idx = np.argmax(corr)
+        
+        # The peak index tells us where the pattern aligns.
+        # We only need the fractional part modulo R.
+        return np.mod(best_idx, R)
+    
+    
+    
     # def demodulate(self, y):
     #     """Non-coherent demodulator."""
     #     R = self.osr_rx  # Receiver oversampling factor

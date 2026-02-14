@@ -356,7 +356,7 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
 
     # RMSE STO
     plt.figure()
-    plt.semilogy(EsN0s_dB, RMSE_sto, "-s")
+    plt.semilogy(EsN0s_dB, RMSE_sto + 1e-12, "-s")
     plt.title("RMSE STO")
     plt.ylabel("RMSE [-]")
     plt.xlabel("$E_{s}/N_{0}$ [dB]")
