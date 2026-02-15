@@ -1,3 +1,7 @@
+# Ignore WSL environment
+.venv-wsl
+
+
 # Python
 
 __pycache__/
