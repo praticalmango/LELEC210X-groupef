@@ -94,16 +94,20 @@ def main(
 
             melvecs = payload_to_melvecs(payload, melvec_length, n_melvecs)
             logger.info(f"Parsed payload into Mel vectors: {melvecs}")
-
-            if m:
+            
+            print(f"m is {m}")
+            if True:
                 # TODO: perform classification with your model
                 guess = "fire"
+                print(f"guessing")
+                logger.info(f"Guessed label:")
 
                 if submit:
+                    print(f"submitting")
                     response = requests.post(
                         f"{url}/lelec210x/leaderboard/submit/{key}/{guess}"
                     )
-
+                    print(f"get response")
                     response_as_dict = json.loads(response.text)
 
                     if response.status_code == 200:
