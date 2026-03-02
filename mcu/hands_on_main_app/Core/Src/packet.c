@@ -2,7 +2,7 @@
  * packet.c
  */
 
-//#include "aes_ref.h"
+#include "aes_ref.h"
 #include "aes.h"
 #include "config.h"
 #include "packet.h"
@@ -18,6 +18,10 @@ const uint8_t AES_Key[16]  = {
 							0x00,0x00,0x00,0x00,
 							0x00,0x00,0x00,0x00,
 							0x00,0x00,0x00,0x00};
+
+
+
+
 
 
 
@@ -57,8 +61,6 @@ void tag_cbc_mac(uint8_t *tag, const uint8_t *msg, size_t msg_len) {
         tag[j] = state[j];
     }
 }
-
-
 
 // Assumes payload is already in place in the packet
 int make_packet(uint8_t *packet, size_t payload_len, uint8_t sender_id, uint32_t serial)
