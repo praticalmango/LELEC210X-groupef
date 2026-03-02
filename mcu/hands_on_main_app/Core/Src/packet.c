@@ -2,11 +2,16 @@
  * packet.c
  */
 
-#include "aes_ref.h"
+//#include "aes_ref.h"
+#include "aes.h"
 #include "config.h"
 #include "packet.h"
 #include "main.h"
 #include "utils.h"
+
+extern CRYP_HandleTypeDef hcryp;
+
+
 
 const uint8_t AES_Key[16]  = {
                             0x00,0x00,0x00,0x00,
@@ -42,7 +47,9 @@ void tag_cbc_mac(uint8_t *tag, const uint8_t *msg, size_t msg_len) {
         }
 
         // Chiffrement AES du state
-        AES128_encrypt(state, AES_Key);
+        //AES128_encrypt(state, AES_Key);
+        //HAL_CRYP_Encrypt(&hcryp, statew, 16, statew, HAL_MAX_DELAY);
+        HAL_CRYPEx_AES(&hcryp, state, 16, state, HAL_MAX_DELAY);
     }
 
     // Copie du résultat dans le tag
@@ -87,3 +94,10 @@ int make_packet(uint8_t *packet, size_t payload_len, uint8_t sender_id, uint32_t
 
     return packet_len;
 }
+
+
+
+
+
+
+
