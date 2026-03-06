@@ -1,6 +1,8 @@
 # Ignore WSL environment
 .venv-wsl
 
+packet_logs
+
 
 # Python
 
