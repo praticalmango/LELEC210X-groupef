@@ -10,6 +10,7 @@ from auth import PRINT_PREFIX
 from common.env import load_dotenv
 from common.logging import logger
 from leaderboard.utils import get_url
+import numpy as np
 
 from .utils import payload_to_melvecs
 
@@ -96,21 +97,38 @@ def main(
             logger.info(f"Parsed payload into Mel vectors: {melvecs}")
             
             print(f"m is {m}")
+            print(f"melvecs is of size {len(melvecs)}")
+            # print(melvecs)
+            
+            
+            mel_np = np.array(melvecs)
+
+            # Calculate energy per frame (sum of squares along the rows)
+            energy_per_frame = np.sum(np.square(mel_np), axis=1)
+
+            print(f"Energy per frame: {energy_per_frame}")
+            
+            total_energy = np.sum(np.square(mel_np))
+            print(f"Total Energy: {total_energy}")
+            
+            
             if True:
                 # TODO: perform classification with your model
-                guess = "fire"
-                print(f"guessing")
-                logger.info(f"Guessed label:")
+                if total_energy > 0.0008:
+                
+                    guess = "fire"
+                    print(f"guessing")
+                    logger.info(f"Guessed label:")
 
-                if submit:
-                    print(f"submitting")
-                    response = requests.post(
-                        f"{url}/lelec210x/leaderboard/submit/{key}/{guess}"
-                    )
-                    print(f"get response")
-                    response_as_dict = json.loads(response.text)
+                    if submit:
+                        print(f"submitting")
+                        response = requests.post(
+                            f"{url}/lelec210x/leaderboard/submit/{key}/{guess}"
+                        )
+                        print(f"get response")
+                        response_as_dict = json.loads(response.text)
 
-                    if response.status_code == 200:
-                        logger.info(response_as_dict)
-                    else:
-                        logger.error(response_as_dict)
+                        if response.status_code == 200:
+                            logger.info(response_as_dict)
+                        else:
+                            logger.error(response_as_dict)

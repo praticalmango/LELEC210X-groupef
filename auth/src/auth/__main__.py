@@ -9,6 +9,11 @@ import common
 from common.env import load_dotenv
 from common.logging import logger
 
+from pathlib import Path
+from datetime import datetime
+
+
+
 from . import PRINT_PREFIX, packet
 
 load_dotenv()
@@ -115,6 +120,7 @@ def main(
 
             logger.debug(f"Reading packets from serial port: {serial_port}")
             logger.info(how_to_kill)
+            
 
             while True:
                 line = ser.read_until(b"\n").decode("ascii").strip()
@@ -151,15 +157,49 @@ def main(
                 msg = socket.recv(2 * melvec_length * n_melvecs)
                 yield msg
 
-    input_stream = reader()
-    for msg in input_stream:
-        try:
-            sender, payload = unwrapper.unwrap_packet(msg)
-            logger.debug(f"From {sender}, received packet: {payload.hex()}")
-            output.write(PRINT_PREFIX + payload.hex() + "\n")
-            output.flush()
 
-        except packet.InvalidPacket as e:
-            logger.error(
-                f"Invalid packet error: {e.args[0]}",
-            )
+        # 1. Define the folder and make sure it exists
+    folder_path = Path("packet_logs")
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    # 2. Generate a unique filename using the current date and time
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_path = folder_path / f"log_{timestamp}.txt"
+
+    input_stream = reader()
+    
+    # 3. Open the new file in write mode ('w')
+    with open(file_path, "w") as file_out:
+        for msg in input_stream:
+            try:
+                sender, payload = unwrapper.unwrap_packet(msg)
+                logger.debug(f"From {sender}, received packet: {payload.hex()}")
+                
+                # Prepare the string you want to write
+                log_string = PRINT_PREFIX + payload.hex() + "\n"
+                
+                # Print to console (your original code)
+                output.write(log_string)
+                output.flush()
+                
+                # Write to the newly created file
+                file_out.write(log_string)
+                file_out.flush() # Flushes the buffer so data is saved immediately 
+
+            except packet.InvalidPacket as e:
+                logger.error(
+                    f"Invalid packet error: {e.args[0]}",
+                )
+
+
+    # for msg in input_stream:
+    #     try:
+    #         sender, payload = unwrapper.unwrap_packet(msg)
+    #         logger.debug(f"From {sender}, received packet: {payload.hex()}")
+    #         output.write(PRINT_PREFIX + payload.hex() + "\n")
+    #         output.flush()
+
+    #     except packet.InvalidPacket as e:
+    #         logger.error(
+    #             f"Invalid packet error: {e.args[0]}",
+    #         )
