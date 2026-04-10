@@ -2,7 +2,7 @@
 .venv-wsl
 
 packet_logs/
-#telecom/sdr/gr-fsk/misc/
+telecom/sdr/gr-fsk/misc/
 
 # Python
 
