@@ -68,27 +68,6 @@ blocks:
     rotation: 0
     state: true
 - name: K_threshold
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: K factor for threshold
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: int
-    start: '1'
-    step: '1'
-    stop: '254'
-    value: '7'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1336, 4.0]
-    rotation: 0
-    state: enabled
-- name: K_threshold
   id: variable
   parameters:
     comment: ''
@@ -100,6 +79,18 @@ blocks:
     coordinate: [1056, 276.0]
     rotation: 0
     state: disabled
+- name: K_threshold
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 176.0]
+    rotation: 0
+    state: enabled
 - name: N_Moose
   id: variable
   parameters:
@@ -182,11 +173,32 @@ blocks:
     coordinate: [664, 84.0]
     rotation: 0
     state: true
+- name: detect_threshold_entry
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: detect_threshold_entry
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.1'
+    step: '0.005'
+    stop: '0.8'
+    value: '0.6'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1336, 4.0]
+    rotation: 0
+    state: enabled
 - name: fdev
   id: variable
   parameters:
     comment: ''
-    value: data_rate/4
+    value: data_rate/2
   states:
     bus_sink: false
     bus_source: false
@@ -433,6 +445,27 @@ blocks:
     coordinate: [976, 412.0]
     rotation: 0
     state: enabled
+- name: fsk_preamble_detect_0
+  id: fsk_preamble_detect
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    drate: data_rate
+    enable: '1'
+    fdev: fdev
+    fsamp: samp_rate
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    packet_len: packet_len
+    threshold: detect_threshold_entry
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 252.0]
+    rotation: 0
+    state: enabled
 - name: fsk_synchronization_0
   id: fsk_synchronization
   parameters:
@@ -473,7 +506,7 @@ blocks:
     bus_structure: null
     coordinate: [112, 396.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: limesdr_fpga_source_0
   id: limesdr_fpga_source
   parameters:
@@ -579,11 +612,14 @@ blocks:
 
 connections:
 - [dc_blocker_xx_0, '0', fsk_onQuery_noise_estimation_0, '0']
+- [dc_blocker_xx_0, '0', fsk_preamble_detect_0, '0']
 - [dc_blocker_xx_0, '0', limesdr_fpga_flag_detector_0, '0']
 - [dc_blocker_xx_0, '0', qtgui_sink_x_0, '0']
 - [fsk_demodulation_0, '0', fsk_packet_parser_0, '0']
 - [fsk_onQuery_noise_estimation_0, NoisePow, fsk_synchronization_0, NoisePow]
 - [fsk_packet_parser_0, '0', zeromq_pub_sink_0, '0']
+- [fsk_preamble_detect_0, '0', fsk_synchronization_0, '0']
+- [fsk_preamble_detect_0, SignalPow, fsk_synchronization_0, SignalPow]
 - [fsk_synchronization_0, '0', fsk_demodulation_0, '0']
 - [limesdr_fpga_flag_detector_0, '0', fsk_synchronization_0, '0']
 - [limesdr_fpga_flag_detector_0, SignalPow, fsk_synchronization_0, SignalPow]

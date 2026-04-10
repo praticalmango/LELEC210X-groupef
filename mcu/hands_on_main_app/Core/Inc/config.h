@@ -28,11 +28,29 @@
 #define MELVEC_LENGTH 20
 #define N_MELVECS 20
 
+// Energy-based event detection (before sending a packet)
+// Mode selection: 0 = fixed threshold, 1 = adaptive threshold (long/short term ratio)
+#define ENERGY_DETECTION_MODE 1
+
+// --- Fixed threshold mode (ENERGY_DETECTION_MODE == 0) ---
+#define ENERGY_THRESHOLD_RAW (100000000LL)
+
+// --- Adaptive threshold mode (ENERGY_DETECTION_MODE == 1) ---
+// Number of packets to average for long-term baseline (e.g., last 30 packets)
+#define LONG_TERM_WINDOW_SIZE 10
+// Number of packets to average for short-term detection (e.g., last 3 packets)
+#define SHORT_TERM_WINDOW_SIZE 2
+// Multiplier: send packet when short_term_avg > k * long_term_avg
+// Higher value = more conservative (fewer false positives), lower = more sensitive
+#define ENERGY_RATIO_THRESHOLD 1.2f
+// Minimum absolute energy to avoid false positives in silence
+#define ENERGY_MIN_ABSOLUTE (500000LL)
+
 // Enable performance measurements
-#define PERF_COUNT 1
+#define PERF_COUNT 0
 
 // Enable debug print
-#define DEBUGP 1
+#define DEBUGP 0
 
 #if (DEBUGP == 1)
 #define DEBUG_PRINT(...) do{ printf(__VA_ARGS__ ); } while( 0 )

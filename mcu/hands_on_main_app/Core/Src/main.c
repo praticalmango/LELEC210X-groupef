@@ -95,19 +95,21 @@ static void acquire_and_send_packet() {
 
 void run(void)
 {
-	btn_press = 0;
+	btn_press = 1;
 
 	while (1)
 	{
 	  while (!btn_press) {
-		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
+		  //HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
 		  HAL_Delay(200);
 		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
 		  HAL_Delay(200);
 	  }
 	  btn_press = 0;
 #if (CONTINUOUS_ACQ == 1)
-	  while (!btn_press) {
+	  //while (!btn_press) {
+		  while (1) {
 		  acquire_and_send_packet();
 	  }
 	  btn_press = 0;
@@ -223,7 +225,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_10;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_7;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -239,7 +241,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }

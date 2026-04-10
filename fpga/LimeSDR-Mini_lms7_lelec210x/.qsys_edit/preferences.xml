@@ -13,9 +13,8 @@
    <endaddress preferredWidth="30" />
   </columns>
  </systemtable>
- <library
-   expandedCategories="Project/System,Library/DSP,Project/LMS_IPs,Library/DSP/Filters,Project,Library" />
- <window width="1534" height="814" x="1" y="1" />
+ <library expandedCategories="Project,Library" />
+ <window width="1920" height="1020" x="0" y="0" />
  <generation
    path="_PROJECT_NAME_/"
    testbench_system="STANDARD"

@@ -1,12 +1,12 @@
-Power Analyzer Status : Successful - Mon Nov 17 19:10:59 2025
+Power Analyzer Status : Successful - Fri Apr 03 14:36:53 2026
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : LimeSDR-Mini_lms7_lelec210x
 Top-level Entity Name : lms7_trx_top
 Family : MAX 10
 Device : 10M16SAU169C8G
 Power Models : Final
-Total Thermal Power Dissipation : 910.31 mW
-Core Dynamic Thermal Power Dissipation : 618.50 mW
-Core Static Thermal Power Dissipation : 235.93 mW
+Total Thermal Power Dissipation : 913.49 mW
+Core Dynamic Thermal Power Dissipation : 621.63 mW
+Core Static Thermal Power Dissipation : 235.98 mW
 I/O Thermal Power Dissipation : 55.88 mW
 Power Estimation Confidence : Low: user provided insufficient toggle rate data

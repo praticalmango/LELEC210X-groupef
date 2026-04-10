@@ -96,10 +96,12 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
         chain.payload_len * chain.osr_tx
     )  # Padding some zeros before the packets
 
+    # print(f"chain taps= {chain.taps.shape[0]} {chain.taps}")
     # Lowpass filter taps
     if chain.taps is None:
         if chain.numtaps != 0:
             taps = firwin(chain.numtaps, chain.cutoff, fs=fs)
+            # print(f"Filter designed with cutoff {chain.cutoff} Hz, numtaps {chain.numtaps}, fs {fs} Hz.")
     else:
         taps = chain.taps
 
@@ -108,11 +110,18 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
     # For loop on the number of packets to send
     for _ in range(chain.n_packets):
         # Random generation of payload bits
+        raw_payload = rng.integers(2, size=chain.payload_len)
+
+        # Encodes if use_golay is True, otherwise returns raw_payload
+        bits = chain.golay_encode_if_enabled(raw_payload)
+
+        x_pay = chain.modulate(bits)
+        x = np.concatenate((x_noise, x_pr, x_sync, x_pay, np.zeros(chain.osr_tx)))
         bits = rng.integers(2, size=chain.payload_len)
 
-        # Transmitted signal
-        x_pay = chain.modulate(bits)  # Modulated signal with payload
-        x = np.concatenate((x_noise, x_pr, x_sync, x_pay, np.zeros(chain.osr_tx)))
+        # # Transmitted signal
+        # x_pay = chain.modulate(bits)  # Modulated signal with payload
+        # x = np.concatenate((x_noise, x_pr, x_sync, x_pay, np.zeros(chain.osr_tx)))
 
         # Channel application (without noise addition): delay and frequency offset
         if np.isnan(chain.sto_val):  # STO should be random
@@ -225,16 +234,40 @@ def main(chain_name: str, seed: int, dest: Path):  # noqa: C901
                     )
                     start_frame = np.argmax(v) + 1
 
-                bits_hat_pay = bits_hat[
-                    start_frame : start_frame + chain.payload_len
-                ]  # Demodulated payload bits
+                # bits_hat_pay = bits_hat[
+                #     start_frame : start_frame + chain.payload_len
+                # ]  # Demodulated payload bits
+                
+                # Determine how many bits to extract from the demodulator
+                ## Demodulation and deframing stage
+                bits_hat = chain.demodulate(y_sync)
+
+                # ... (Keep existing Frame Sync logic to find start_frame) ...
+
+                # Calculate the exact number of bits we expect to find after the Sync Word
+                if chain.use_golay:
+                    # Number of 12-bit blocks needed for the payload
+                    num_blocks = (chain.payload_len + 11) // 12
+                    expected_len = num_blocks * 24
+                else:
+                    expected_len = chain.payload_len
+
+                # Extract bits with a safety check for array bounds
+                end_frame = start_frame + expected_len
+                bits_hat_pay = bits_hat[start_frame : end_frame]
+
+                # If the frame sync found a peak too close to the end of the buffer
+                if len(bits_hat_pay) < expected_len:
+                    preamble_error = True # Treat as a misdetection
+                
+                # Decode/Correct
+                final_payload_hat = chain.golay_decode_if_enabled(bits_hat_pay, chain.payload_len)
 
                 ## Computing performance metrics
-                if len(bits) == len(bits_hat_pay) and not preamble_error:
-                    errors = bits ^ bits_hat_pay
-
-                else:  # if the number of demodulated symbols is incorrect
-                    errors = 0.5 * np.ones(len(bits))  # flag all bits as wrong
+                if len(raw_payload) == len(final_payload_hat) and not preamble_error:
+                    errors = raw_payload ^ final_payload_hat
+                else:
+                    errors = 0.5 * np.ones(len(raw_payload))
             # end if preamble
 
             bit_errors[k] += np.sum(errors)

@@ -23,6 +23,8 @@ from distutils.version import LooseVersion
 import numpy as np
 import pmt
 from gnuradio import gr
+from scipy import signal
+
 
 from .utils import logging, measurements_logger
 
@@ -60,25 +62,57 @@ def cfo_estimation(y,B, R, Fdev,N):
     return cfo_est
 
 
-def sto_estimation(y, B, R, Fdev):
-    """
-    Estimate symbol timing (fractional) based on phase shifts
-    """
-    phase_function = np.unwrap(np.angle(y))
-    phase_derivative_sign = phase_function[1:] - phase_function[:-1]
-    sign_derivative = np.abs(phase_derivative_sign[1:] - phase_derivative_sign[:-1])
+# def sto_estimation(y, B, R, Fdev):
+#     """
+#     Estimate symbol timing (fractional) based on phase shifts
+#     """
+#     phase_function = np.unwrap(np.angle(y))
+#     phase_derivative_sign = phase_function[1:] - phase_function[:-1]
+#     sign_derivative = np.abs(phase_derivative_sign[1:] - phase_derivative_sign[:-1])
 
-    sum_der_saved = -np.inf
-    save_i = 0
+#     sum_der_saved = -np.inf
+#     save_i = 0
 
-    for i in range(0, R):
-        sum_der = np.sum(sign_derivative[i::R])
+#     for i in range(0, R):
+#         sum_der = np.sum(sign_derivative[i::R])
 
-        if sum_der > sum_der_saved:
-            sum_der_saved = sum_der
-            save_i = i
+#         if sum_der > sum_der_saved:
+#             sum_der_saved = sum_der
+#             save_i = i
 
-    return np.mod(save_i + 1, R)
+#     return np.mod(save_i + 1, R)
+
+
+
+
+
+def sto_estimation(y,B, R, Fdev):
+        
+        search_len = 32 * R
+        y_segment = y[:search_len]
+        
+        # print(f"y segment = {y_segment}")
+        
+        discriminator_out = y_segment[1:] * np.conj(y_segment[:-1])
+        disc_phase = np.angle(discriminator_out)
+
+        n_template_bits = 12 # 12 taille opti pour RMSE
+        dotting_bits = np.resize([1, 0], n_template_bits) 
+        tx_syms = 2 * dotting_bits - 1
+        ref_pattern = np.repeat(tx_syms, R)
+
+
+
+        correlation = signal.correlate(disc_phase, ref_pattern, mode='valid')
+        
+        # 5. Find the Peak
+        # The peak index represents the best alignment point
+        peak_index = np.argmax(np.abs(correlation))
+        
+        # 6. Return Fractional Offset
+        # This tells us where the symbol boundary is relative to our first sample
+        # print(f"sto est = {np.mod(peak_index, R)}")
+        return np.mod(peak_index, R)
 
 
 

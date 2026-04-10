@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2025.11.17.18:37:05"
+ date="2026.04.03.14:23:46"
  outputDirectory="C:/Users/franc/Documents/Codes/projet_elec/LELEC210X/fpga/LimeSDR-Mini_lms7_lelec210x/lms_dsp/">
  <perimeter>
   <parameter
@@ -131,14 +131,14 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="lms_dsp:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M16SAU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1763401009,AUTO_UNIQUE_ID=(AVS2FIFO:1.0:datawidth=48)(FIFO2AVS:1.0:datawidth=48)(clock_source:18.1:clockFrequency=125000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_fir_compiler_ii:18.1:L_bandsFilter=1,MODE_STRING=0,1,2,3,ModeWidth=0,backPressure=false,bankCount=1,bankDisplay=0,bankInWidth=0,baseAddress=0,busAddressWidth=5,busDataWidth=16,chanPerInputInterface=1,chanPerOutputInterface=1,channelModes=0,1,clockRate=0.4,clockSlack=0,coeffBitWidth=8,coeffBitWidth_derived=8,coeffComplex=false,coeffFracBitWidth=7,coeffNum=31,coeffReload=false,coeffScaling=auto,coeffSetFixedValue=0,0,0,0,0,-1,1,0,-3,6,-5,0,11,-25,37,127,37,-25,11,0,-5,6,-3,0,1,-1,0,0,0,0,0,coeffSetFixedValueImag=0,0,0,0,0,0,0,0,coeffSetRealValue=-0.001201261290430126,0.0020488944185569607,-0.0020751053507837938,4.910806933254215E-18,0.004754535968663148,-0.00987450755161552,0.00995675888032359,-1.4391882903962387E-17,-0.018922538981281996,0.036214375130954504,-0.03468641976116993,2.4803862788187382E-17,0.06848299151299582,-0.15293237705130486,0.22297239138994396,0.7505245253702963,0.22297239138994396,-0.15293237705130486,0.06848299151299582,2.4803862788187385E-17,-0.034686419761169936,0.036214375130954504,-0.018922538981282003,-1.4391882903962393E-17,0.00995675888032359,-0.009874507551615532,0.004754535968663151,4.910806933254215E-18,-0.0020751053507837946,0.0020488944185569607,-0.001201261290430126,coeffSetRealValueImag=0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0530093, -0.04498, 0.0, 0.0749693, 0.159034, 0.224907, 0.249809, 0.224907, 0.159034, 0.0749693, 0.0, -0.04498, -0.0530093, -0.0321283, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,coeffSetScaleValue=0.0,0.0,0.0,0.0,0.0,-0.0059096419320495775,0.0059096419320495775,0.0,-0.017728925796148733,0.03545785159229747,-0.029548209660247887,0.0,0.06500606125254535,-0.14774104830123944,0.21865675148583436,0.7505245253702963,0.21865675148583436,-0.14774104830123944,0.06500606125254535,0.0,-0.029548209660247887,0.03545785159229747,-0.017728925796148733,0.0,0.0059096419320495775,-0.0059096419320495775,0.0,0.0,0.0,0.0,0.0,coeffSetScaleValueImag=0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,coeffType=frac,coefficientReadback=false,coefficientWriteable=false,decimFactor=1,delayRAMBlockThreshold=20,deviceFamily=MAX 10,dspCount=0,dualMemDistRAMThreshold=1280,errorList=0,filterType=single,funcResult=-interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family=&quot;MAX 10&quot; 
-|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2504 DSPs: 0 RAM Bits: 0|,hardMultiplierThreshold=-1,inputBitWidth=12,inputChannelNum=2,inputFracBitWidth=11,inputInterfaceNum=2,inputRate=0.4,inputType=frac,interpFactor=1,karatsuba=false,latency=17,latency_realOnly=17,lutCount=2504,mRAMThreshold=1000000,memBitCount=0,modeFormatted=--,num_modes=2,outBitWidth=12,outFracBitWidth=9,outFullFracBitWidth=18,outFullFracBitWidth_realOnly=18,outLSBRound=trunc,outLsbBitRem=9,outMSBRound=trunc,outMsbBitRem=4,outType=frac,outWidth=25,outWidth_realOnly=25,outputInterfaceNum=2,outputfifodepth=16,outputfifodepth_realOnly=8,readWriteMode=read_write,reconfigurable=false,reconfigurable_list=0,speedGrade=slow,symmetryMode=nsym)(packet_presence_detection:1.0:DATA_WIDTH=12,PASSTHROUGH_LEN_WIDTH=16)(altera_avalon_st_splitter:18.1:BITS_PER_SYMBOL=12,CHANNEL_WIDTH=1,DATA_WIDTH=24,EMPTY_WIDTH=1,ERROR_DESCRIPTOR=,ERROR_WIDTH=1,MAX_CHANNELS=1,NUMBER_OF_OUTPUTS=2,QUALIFY_VALID_OUT=0,READY_LATENCY=0,USE_CHANNEL=0,USE_DATA=1,USE_ERROR=0,USE_PACKETS=0,USE_READY=0,USE_VALID=1)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)"
+   parameterizationKey="lms_dsp:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M16SAU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1775219013,AUTO_UNIQUE_ID=(AVS2FIFO:1.0:datawidth=48)(FIFO2AVS:1.0:datawidth=48)(clock_source:18.1:clockFrequency=125000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_fir_compiler_ii:18.1:L_bandsFilter=1,MODE_STRING=0,1,2,3,ModeWidth=0,backPressure=false,bankCount=1,bankDisplay=0,bankInWidth=0,baseAddress=0,busAddressWidth=5,busDataWidth=16,chanPerInputInterface=1,chanPerOutputInterface=1,channelModes=0,1,clockRate=0.4,clockSlack=0,coeffBitWidth=8,coeffBitWidth_derived=8,coeffComplex=false,coeffFracBitWidth=7,coeffNum=31,coeffReload=false,coeffScaling=auto,coeffSetFixedValue=0,0,0,1,0,-2,-4,0,8,8,-6,-22,-12,36,98,127,98,36,-12,-22,-6,8,8,0,-4,-2,0,1,0,0,0,coeffSetFixedValueImag=0,0,0,0,0,0,0,0,coeffSetRealValue=-0.0015719659740191833,-0.0014510417105898566,0.0011247865737355875,0.004462464910319958,0.0025771405870431054,-0.006993197013548465,-0.013029376952434474,7.20713963078724E-18,0.024761962828233754,0.0256472799974598,-0.018801367951552104,-0.06761803233384048,-0.03712040420211492,0.10830780541507395,0.2917808267052183,0.37584623824203,0.2917808267052183,0.10830780541507395,-0.03712040420211492,-0.06761803233384048,-0.01880136795155211,0.0256472799974598,0.024761962828233765,7.207139630787242E-18,-0.013029376952434474,-0.006993197013548474,0.002577140587043107,0.004462464910319958,0.0011247865737355881,-0.0014510417105898566,-0.0015719659740191833,coeffSetRealValueImag=0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0530093, -0.04498, 0.0, 0.0749693, 0.159034, 0.224907, 0.249809, 0.224907, 0.159034, 0.0749693, 0.0, -0.04498, -0.0530093, -0.0321283, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,coeffSetScaleValue=0.0,0.0,0.0,0.0029594191987561413,0.0,-0.005918838397512283,-0.011837676795024565,0.0,0.02367535359004913,0.02367535359004913,-0.017756515192536848,-0.06510722237263511,-0.035513030385073696,0.1065390911552211,0.29002308147810185,0.37584623824202995,0.29002308147810185,0.1065390911552211,-0.035513030385073696,-0.06510722237263511,-0.017756515192536848,0.02367535359004913,0.02367535359004913,0.0,-0.011837676795024565,-0.005918838397512283,0.0,0.0029594191987561413,0.0,0.0,0.0,coeffSetScaleValueImag=0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,coeffType=frac,coefficientReadback=false,coefficientWriteable=false,decimFactor=1,delayRAMBlockThreshold=20,deviceFamily=MAX 10,dspCount=0,dualMemDistRAMThreshold=1280,errorList=0,filterType=single,funcResult=-interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family=&quot;MAX 10&quot; 
+|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2693 DSPs: 0 RAM Bits: 0|,hardMultiplierThreshold=-1,inputBitWidth=12,inputChannelNum=2,inputFracBitWidth=11,inputInterfaceNum=2,inputRate=0.4,inputType=frac,interpFactor=1,karatsuba=false,latency=17,latency_realOnly=17,lutCount=2693,mRAMThreshold=1000000,memBitCount=0,modeFormatted=--,num_modes=2,outBitWidth=12,outFracBitWidth=8,outFullFracBitWidth=18,outFullFracBitWidth_realOnly=18,outLSBRound=trunc,outLsbBitRem=10,outMSBRound=trunc,outMsbBitRem=3,outType=frac,outWidth=25,outWidth_realOnly=25,outputInterfaceNum=2,outputfifodepth=16,outputfifodepth_realOnly=8,readWriteMode=read_write,reconfigurable=false,reconfigurable_list=0,speedGrade=slow,symmetryMode=nsym)(packet_presence_detection:1.0:DATA_WIDTH=12,PASSTHROUGH_LEN_WIDTH=16)(altera_avalon_st_splitter:18.1:BITS_PER_SYMBOL=12,CHANNEL_WIDTH=1,DATA_WIDTH=24,EMPTY_WIDTH=1,ERROR_DESCRIPTOR=,ERROR_WIDTH=1,MAX_CHANNELS=1,NUMBER_OF_OUTPUTS=2,QUALIFY_VALID_OUT=0,READY_LATENCY=0,USE_CHANNEL=0,USE_DATA=1,USE_ERROR=0,USE_PACKETS=0,USE_READY=0,USE_VALID=1)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(avalon_streaming:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(clock:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)"
    instancePathKey="lms_dsp"
    kind="lms_dsp"
    version="1.0"
    name="lms_dsp">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_GENERATION_ID" value="1763401009" />
+  <parameter name="AUTO_GENERATION_ID" value="1775219013" />
   <parameter name="AUTO_DEVICE" value="10M16SAU169C8G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="MAX 10" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="-1" />
@@ -355,10 +355,10 @@
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter">Inserting error_adapter: error_adapter_0</message>
-   <message level="Debug" culprit="avalon_st_adapter.clk_bridge_0">Timing: ELA:1/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.000s/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.010s</message>
-   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.015s/0.017s</message>
+   <message level="Debug" culprit="avalon_st_adapter.clk_bridge_0">Timing: ELA:1/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.001s/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.007s</message>
+   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.019s/0.025s</message>
    <message level="Progress" culprit="min"></message>
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
@@ -366,11 +366,11 @@
    <message level="Info" culprit="avalon_st_adapter_001">Inserting timing_adapter: timing_adapter_0</message>
    <message level="Info" culprit="avalon_st_adapter_001">Inserting timing_adapter: timing_adapter_1</message>
    <message level="Debug" culprit="avalon_st_adapter_001.clk_bridge_0">Timing: ELA:1/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.007s/0.014s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.data_format_adapter_0">Timing: ELA:1/0.006s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.timing_adapter_0">Timing: ELA:1/0.010s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.timing_adapter_1">Timing: ELA:2/0.010s/0.016s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:2/0.077s/0.129s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.000s/0.000s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.data_format_adapter_0">Timing: ELA:1/0.008s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.timing_adapter_0">Timing: ELA:1/0.006s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.timing_adapter_1">Timing: ELA:2/0.006s/0.007s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:2/0.031s/0.050s</message>
    <message level="Progress" culprit="min"></message>
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
@@ -378,19 +378,19 @@
    <message level="Info" culprit="avalon_st_adapter_002">Inserting timing_adapter: timing_adapter_0</message>
    <message level="Info" culprit="avalon_st_adapter_002">Inserting timing_adapter: timing_adapter_1</message>
    <message level="Debug" culprit="avalon_st_adapter_002.clk_bridge_0">Timing: ELA:1/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter_002.rst_bridge_0">Timing: ELA:2/0.004s/0.004s</message>
-   <message level="Debug" culprit="avalon_st_adapter_002.data_format_adapter_0">Timing: ELA:1/0.003s</message>
-   <message level="Debug" culprit="avalon_st_adapter_002.timing_adapter_0">Timing: ELA:1/0.010s</message>
-   <message level="Debug" culprit="avalon_st_adapter_002.timing_adapter_1">Timing: ELA:2/0.006s/0.006s</message>
-   <message level="Debug" culprit="avalon_st_adapter_002">Timing: COM:3/0.052s/0.080s</message>
+   <message level="Debug" culprit="avalon_st_adapter_002.rst_bridge_0">Timing: ELA:2/0.001s/0.001s</message>
+   <message level="Debug" culprit="avalon_st_adapter_002.data_format_adapter_0">Timing: ELA:1/0.007s</message>
+   <message level="Debug" culprit="avalon_st_adapter_002.timing_adapter_0">Timing: ELA:1/0.007s</message>
+   <message level="Debug" culprit="avalon_st_adapter_002.timing_adapter_1">Timing: ELA:2/0.007s/0.008s</message>
+   <message level="Debug" culprit="avalon_st_adapter_002">Timing: COM:3/0.039s/0.053s</message>
    <message level="Progress" culprit="min"></message>
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter_003">Inserting error_adapter: error_adapter_0</message>
    <message level="Debug" culprit="avalon_st_adapter_003.clk_bridge_0">Timing: ELA:1/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter_003.rst_bridge_0">Timing: ELA:2/0.000s/0.000s</message>
-   <message level="Debug" culprit="avalon_st_adapter_003.error_adapter_0">Timing: ELA:1/0.010s</message>
-   <message level="Debug" culprit="avalon_st_adapter_003">Timing: COM:3/0.017s/0.020s</message>
+   <message level="Debug" culprit="avalon_st_adapter_003.rst_bridge_0">Timing: ELA:2/0.000s/0.001s</message>
+   <message level="Debug" culprit="avalon_st_adapter_003.error_adapter_0">Timing: ELA:1/0.007s</message>
+   <message level="Debug" culprit="avalon_st_adapter_003">Timing: COM:3/0.013s/0.014s</message>
    <message
        level="Debug"
        culprit="com_altera_sopcmodel_transforms_avalonst_AvalonStreamingTransform"><![CDATA[After transform: <b>10</b> modules, <b>27</b> connections]]></message>
@@ -414,9 +414,9 @@
    <message level="Debug" culprit="lms_dsp">queue size: 8 starting:FIFO2AVS "submodules/fifo2avs"</message>
    <message level="Info" culprit="FIFO2AVS_0"><![CDATA["<b>lms_dsp</b>" instantiated <b>FIFO2AVS</b> "<b>FIFO2AVS_0</b>"]]></message>
    <message level="Debug" culprit="lms_dsp">queue size: 7 starting:altera_fir_compiler_ii "submodules/lms_dsp_fir_compiler_ii_0"</message>
-   <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[C:/intelfpga_lite/18.1/quartus/dspba/backend/windows64/fir_ip_api_interface lms_dsp_fir_compiler_ii_0_rtl_core . MAX10 slow 0 0.4 2 0.4 31 1 1 1 nsym 1 12 11 8 7 0 false false -- 16 5 20 1280 1000000 -1 true false 1 -- <<< 0,0,0,0,0,-1,1,0,-3,6,-5,0,11,-25,37,127,37,-25,11,0,-5,6,-3,0,1,-1,0,0,0,0,0 ]]></message>
+   <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[C:/intelfpga_lite/18.1/quartus/dspba/backend/windows64/fir_ip_api_interface lms_dsp_fir_compiler_ii_0_rtl_core . MAX10 slow 0 0.4 2 0.4 31 1 1 1 nsym 1 12 11 8 7 0 false false -- 16 5 20 1280 1000000 -1 true false 1 -- <<< 0,0,0,1,0,-2,-4,0,8,8,-6,-22,-12,36,98,127,98,36,-12,-22,-6,8,8,0,-4,-2,0,1,0,0,0 ]]></message>
    <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[OUTPARAMS -interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family="MAX 10" 
-|{}|2|2|1|1|25|18|17|8|true|LUTS: 2504 DSPs: 0 RAM Bits: 0|lms_dsp_fir_compiler_ii_0_rtl_core.vhd|]]></message>
+|{}|2|2|1|1|25|18|17|8|true|LUTS: 2693 DSPs: 0 RAM Bits: 0|lms_dsp_fir_compiler_ii_0_rtl_core.vhd|]]></message>
    <message level="Info" culprit="fir_compiler_ii_0">PhysChanIn 2, PhysChanOut 2, ChansPerPhyIn 1, ChansPerPhyOut 1, OutputFullBitWidth 25, Bankcount 1, Latency 17, CoefBitWidth 8</message>
    <message level="Info" culprit="fir_compiler_ii_0"><![CDATA["<b>lms_dsp</b>" instantiated <b>altera_fir_compiler_ii</b> "<b>fir_compiler_ii_0</b>"]]></message>
    <message level="Debug" culprit="lms_dsp">queue size: 6 starting:packet_presence_detection "submodules/packet_presence_detection"</message>
@@ -561,8 +561,8 @@
  </entity>
  <entity
    path="submodules/"
-   parameterizationKey="altera_fir_compiler_ii:18.1:L_bandsFilter=1,MODE_STRING=0,1,2,3,ModeWidth=0,backPressure=false,bankCount=1,bankDisplay=0,bankInWidth=0,baseAddress=0,busAddressWidth=5,busDataWidth=16,chanPerInputInterface=1,chanPerOutputInterface=1,channelModes=0,1,clockRate=0.4,clockSlack=0,coeffBitWidth=8,coeffBitWidth_derived=8,coeffComplex=false,coeffFracBitWidth=7,coeffNum=31,coeffReload=false,coeffScaling=auto,coeffSetFixedValue=0,0,0,0,0,-1,1,0,-3,6,-5,0,11,-25,37,127,37,-25,11,0,-5,6,-3,0,1,-1,0,0,0,0,0,coeffSetFixedValueImag=0,0,0,0,0,0,0,0,coeffSetRealValue=-0.001201261290430126,0.0020488944185569607,-0.0020751053507837938,4.910806933254215E-18,0.004754535968663148,-0.00987450755161552,0.00995675888032359,-1.4391882903962387E-17,-0.018922538981281996,0.036214375130954504,-0.03468641976116993,2.4803862788187382E-17,0.06848299151299582,-0.15293237705130486,0.22297239138994396,0.7505245253702963,0.22297239138994396,-0.15293237705130486,0.06848299151299582,2.4803862788187385E-17,-0.034686419761169936,0.036214375130954504,-0.018922538981282003,-1.4391882903962393E-17,0.00995675888032359,-0.009874507551615532,0.004754535968663151,4.910806933254215E-18,-0.0020751053507837946,0.0020488944185569607,-0.001201261290430126,coeffSetRealValueImag=0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0530093, -0.04498, 0.0, 0.0749693, 0.159034, 0.224907, 0.249809, 0.224907, 0.159034, 0.0749693, 0.0, -0.04498, -0.0530093, -0.0321283, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,coeffSetScaleValue=0.0,0.0,0.0,0.0,0.0,-0.0059096419320495775,0.0059096419320495775,0.0,-0.017728925796148733,0.03545785159229747,-0.029548209660247887,0.0,0.06500606125254535,-0.14774104830123944,0.21865675148583436,0.7505245253702963,0.21865675148583436,-0.14774104830123944,0.06500606125254535,0.0,-0.029548209660247887,0.03545785159229747,-0.017728925796148733,0.0,0.0059096419320495775,-0.0059096419320495775,0.0,0.0,0.0,0.0,0.0,coeffSetScaleValueImag=0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,coeffType=frac,coefficientReadback=false,coefficientWriteable=false,decimFactor=1,delayRAMBlockThreshold=20,deviceFamily=MAX 10,dspCount=0,dualMemDistRAMThreshold=1280,errorList=0,filterType=single,funcResult=-interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family=&quot;MAX 10&quot; 
-|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2504 DSPs: 0 RAM Bits: 0|,hardMultiplierThreshold=-1,inputBitWidth=12,inputChannelNum=2,inputFracBitWidth=11,inputInterfaceNum=2,inputRate=0.4,inputType=frac,interpFactor=1,karatsuba=false,latency=17,latency_realOnly=17,lutCount=2504,mRAMThreshold=1000000,memBitCount=0,modeFormatted=--,num_modes=2,outBitWidth=12,outFracBitWidth=9,outFullFracBitWidth=18,outFullFracBitWidth_realOnly=18,outLSBRound=trunc,outLsbBitRem=9,outMSBRound=trunc,outMsbBitRem=4,outType=frac,outWidth=25,outWidth_realOnly=25,outputInterfaceNum=2,outputfifodepth=16,outputfifodepth_realOnly=8,readWriteMode=read_write,reconfigurable=false,reconfigurable_list=0,speedGrade=slow,symmetryMode=nsym"
+   parameterizationKey="altera_fir_compiler_ii:18.1:L_bandsFilter=1,MODE_STRING=0,1,2,3,ModeWidth=0,backPressure=false,bankCount=1,bankDisplay=0,bankInWidth=0,baseAddress=0,busAddressWidth=5,busDataWidth=16,chanPerInputInterface=1,chanPerOutputInterface=1,channelModes=0,1,clockRate=0.4,clockSlack=0,coeffBitWidth=8,coeffBitWidth_derived=8,coeffComplex=false,coeffFracBitWidth=7,coeffNum=31,coeffReload=false,coeffScaling=auto,coeffSetFixedValue=0,0,0,1,0,-2,-4,0,8,8,-6,-22,-12,36,98,127,98,36,-12,-22,-6,8,8,0,-4,-2,0,1,0,0,0,coeffSetFixedValueImag=0,0,0,0,0,0,0,0,coeffSetRealValue=-0.0015719659740191833,-0.0014510417105898566,0.0011247865737355875,0.004462464910319958,0.0025771405870431054,-0.006993197013548465,-0.013029376952434474,7.20713963078724E-18,0.024761962828233754,0.0256472799974598,-0.018801367951552104,-0.06761803233384048,-0.03712040420211492,0.10830780541507395,0.2917808267052183,0.37584623824203,0.2917808267052183,0.10830780541507395,-0.03712040420211492,-0.06761803233384048,-0.01880136795155211,0.0256472799974598,0.024761962828233765,7.207139630787242E-18,-0.013029376952434474,-0.006993197013548474,0.002577140587043107,0.004462464910319958,0.0011247865737355881,-0.0014510417105898566,-0.0015719659740191833,coeffSetRealValueImag=0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0530093, -0.04498, 0.0, 0.0749693, 0.159034, 0.224907, 0.249809, 0.224907, 0.159034, 0.0749693, 0.0, -0.04498, -0.0530093, -0.0321283, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,coeffSetScaleValue=0.0,0.0,0.0,0.0029594191987561413,0.0,-0.005918838397512283,-0.011837676795024565,0.0,0.02367535359004913,0.02367535359004913,-0.017756515192536848,-0.06510722237263511,-0.035513030385073696,0.1065390911552211,0.29002308147810185,0.37584623824202995,0.29002308147810185,0.1065390911552211,-0.035513030385073696,-0.06510722237263511,-0.017756515192536848,0.02367535359004913,0.02367535359004913,0.0,-0.011837676795024565,-0.005918838397512283,0.0,0.0029594191987561413,0.0,0.0,0.0,coeffSetScaleValueImag=0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,coeffType=frac,coefficientReadback=false,coefficientWriteable=false,decimFactor=1,delayRAMBlockThreshold=20,deviceFamily=MAX 10,dspCount=0,dualMemDistRAMThreshold=1280,errorList=0,filterType=single,funcResult=-interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family=&quot;MAX 10&quot; 
+|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2693 DSPs: 0 RAM Bits: 0|,hardMultiplierThreshold=-1,inputBitWidth=12,inputChannelNum=2,inputFracBitWidth=11,inputInterfaceNum=2,inputRate=0.4,inputType=frac,interpFactor=1,karatsuba=false,latency=17,latency_realOnly=17,lutCount=2693,mRAMThreshold=1000000,memBitCount=0,modeFormatted=--,num_modes=2,outBitWidth=12,outFracBitWidth=8,outFullFracBitWidth=18,outFullFracBitWidth_realOnly=18,outLSBRound=trunc,outLsbBitRem=10,outMSBRound=trunc,outMsbBitRem=3,outType=frac,outWidth=25,outWidth_realOnly=25,outputInterfaceNum=2,outputfifodepth=16,outputfifodepth_realOnly=8,readWriteMode=read_write,reconfigurable=false,reconfigurable_list=0,speedGrade=slow,symmetryMode=nsym"
    instancePathKey="lms_dsp:.:fir_compiler_ii_0"
    kind="altera_fir_compiler_ii"
    version="18.1"
@@ -577,7 +577,7 @@
   <parameter
      name="funcResult"
      value="-interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family=&quot;MAX 10&quot; 
-|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2504 DSPs: 0 RAM Bits: 0|" />
+|{}|2|2|1|1|25|18|17|8|noCode|LUTS: 2693 DSPs: 0 RAM Bits: 0|" />
   <parameter name="speedGrade" value="slow" />
   <parameter name="outFullFracBitWidth_realOnly" value="18" />
   <parameter name="coeffBitWidth" value="8" />
@@ -598,14 +598,14 @@
   <parameter name="baseAddress" value="0" />
   <parameter
      name="coeffSetRealValue"
-     value="-0.001201261290430126,0.0020488944185569607,-0.0020751053507837938,4.910806933254215E-18,0.004754535968663148,-0.00987450755161552,0.00995675888032359,-1.4391882903962387E-17,-0.018922538981281996,0.036214375130954504,-0.03468641976116993,2.4803862788187382E-17,0.06848299151299582,-0.15293237705130486,0.22297239138994396,0.7505245253702963,0.22297239138994396,-0.15293237705130486,0.06848299151299582,2.4803862788187385E-17,-0.034686419761169936,0.036214375130954504,-0.018922538981282003,-1.4391882903962393E-17,0.00995675888032359,-0.009874507551615532,0.004754535968663151,4.910806933254215E-18,-0.0020751053507837946,0.0020488944185569607,-0.001201261290430126" />
+     value="-0.0015719659740191833,-0.0014510417105898566,0.0011247865737355875,0.004462464910319958,0.0025771405870431054,-0.006993197013548465,-0.013029376952434474,7.20713963078724E-18,0.024761962828233754,0.0256472799974598,-0.018801367951552104,-0.06761803233384048,-0.03712040420211492,0.10830780541507395,0.2917808267052183,0.37584623824203,0.2917808267052183,0.10830780541507395,-0.03712040420211492,-0.06761803233384048,-0.01880136795155211,0.0256472799974598,0.024761962828233765,7.207139630787242E-18,-0.013029376952434474,-0.006993197013548474,0.002577140587043107,0.004462464910319958,0.0011247865737355881,-0.0014510417105898566,-0.0015719659740191833" />
   <parameter name="coeffSetScaleValueImag" value="0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0" />
   <parameter name="chanPerInputInterface" value="1" />
   <parameter name="deviceFamily" value="MAX 10" />
   <parameter name="dspCount" value="0" />
   <parameter name="outType" value="frac" />
   <parameter name="symmetryMode" value="nsym" />
-  <parameter name="outLsbBitRem" value="9" />
+  <parameter name="outLsbBitRem" value="10" />
   <parameter name="decimFactor" value="1" />
   <parameter name="ModeWidth" value="0" />
   <parameter name="memBitCount" value="0" />
@@ -623,10 +623,10 @@
   <parameter name="channelModes" value="0,1" />
   <parameter
      name="coeffSetScaleValue"
-     value="0.0,0.0,0.0,0.0,0.0,-0.0059096419320495775,0.0059096419320495775,0.0,-0.017728925796148733,0.03545785159229747,-0.029548209660247887,0.0,0.06500606125254535,-0.14774104830123944,0.21865675148583436,0.7505245253702963,0.21865675148583436,-0.14774104830123944,0.06500606125254535,0.0,-0.029548209660247887,0.03545785159229747,-0.017728925796148733,0.0,0.0059096419320495775,-0.0059096419320495775,0.0,0.0,0.0,0.0,0.0" />
+     value="0.0,0.0,0.0,0.0029594191987561413,0.0,-0.005918838397512283,-0.011837676795024565,0.0,0.02367535359004913,0.02367535359004913,-0.017756515192536848,-0.06510722237263511,-0.035513030385073696,0.1065390911552211,0.29002308147810185,0.37584623824202995,0.29002308147810185,0.1065390911552211,-0.035513030385073696,-0.06510722237263511,-0.017756515192536848,0.02367535359004913,0.02367535359004913,0.0,-0.011837676795024565,-0.005918838397512283,0.0,0.0029594191987561413,0.0,0.0,0.0" />
   <parameter name="latency" value="17" />
-  <parameter name="lutCount" value="2504" />
-  <parameter name="outFracBitWidth" value="9" />
+  <parameter name="lutCount" value="2693" />
+  <parameter name="outFracBitWidth" value="8" />
   <parameter name="outputfifodepth" value="16" />
   <parameter name="clockRate" value="0.4" />
   <parameter name="readWriteMode" value="read_write" />
@@ -635,7 +635,7 @@
   <parameter name="coeffFracBitWidth" value="7" />
   <parameter
      name="coeffSetFixedValue"
-     value="0,0,0,0,0,-1,1,0,-3,6,-5,0,11,-25,37,127,37,-25,11,0,-5,6,-3,0,1,-1,0,0,0,0,0" />
+     value="0,0,0,1,0,-2,-4,0,8,8,-6,-22,-12,36,98,127,98,36,-12,-22,-6,8,8,0,-4,-2,0,1,0,0,0" />
   <parameter name="modeFormatted" value="--" />
   <parameter name="mRAMThreshold" value="1000000" />
   <parameter name="bankCount" value="1" />
@@ -644,7 +644,7 @@
   <parameter name="errorList" value="0" />
   <parameter name="L_bandsFilter" value="1" />
   <parameter name="clockSlack" value="0" />
-  <parameter name="outMsbBitRem" value="4" />
+  <parameter name="outMsbBitRem" value="3" />
   <parameter name="reconfigurable_list" value="0" />
   <parameter name="dualMemDistRAMThreshold" value="1280" />
   <parameter name="latency_realOnly" value="17" />
@@ -711,9 +711,9 @@
   <instantiator instantiator="lms_dsp" as="fir_compiler_ii_0" />
   <messages>
    <message level="Debug" culprit="lms_dsp">queue size: 7 starting:altera_fir_compiler_ii "submodules/lms_dsp_fir_compiler_ii_0"</message>
-   <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[C:/intelfpga_lite/18.1/quartus/dspba/backend/windows64/fir_ip_api_interface lms_dsp_fir_compiler_ii_0_rtl_core . MAX10 slow 0 0.4 2 0.4 31 1 1 1 nsym 1 12 11 8 7 0 false false -- 16 5 20 1280 1000000 -1 true false 1 -- <<< 0,0,0,0,0,-1,1,0,-3,6,-5,0,11,-25,37,127,37,-25,11,0,-5,6,-3,0,1,-1,0,0,0,0,0 ]]></message>
+   <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[C:/intelfpga_lite/18.1/quartus/dspba/backend/windows64/fir_ip_api_interface lms_dsp_fir_compiler_ii_0_rtl_core . MAX10 slow 0 0.4 2 0.4 31 1 1 1 nsym 1 12 11 8 7 0 false false -- 16 5 20 1280 1000000 -1 true false 1 -- <<< 0,0,0,1,0,-2,-4,0,8,8,-6,-22,-12,36,98,127,98,36,-12,-22,-6,8,8,0,-4,-2,0,1,0,0,0 ]]></message>
    <message level="Debug" culprit="fir_compiler_ii_0"><![CDATA[OUTPARAMS -interp=1 -decim=1 -incycles=1 -len=31 -bankcount=1 -nsym -nband=1 -chans=2 -family="MAX 10" 
-|{}|2|2|1|1|25|18|17|8|true|LUTS: 2504 DSPs: 0 RAM Bits: 0|lms_dsp_fir_compiler_ii_0_rtl_core.vhd|]]></message>
+|{}|2|2|1|1|25|18|17|8|true|LUTS: 2693 DSPs: 0 RAM Bits: 0|lms_dsp_fir_compiler_ii_0_rtl_core.vhd|]]></message>
    <message level="Info" culprit="fir_compiler_ii_0">PhysChanIn 2, PhysChanOut 2, ChansPerPhyIn 1, ChansPerPhyOut 1, OutputFullBitWidth 25, Bankcount 1, Latency 17, CoefBitWidth 8</message>
    <message level="Info" culprit="fir_compiler_ii_0"><![CDATA["<b>lms_dsp</b>" instantiated <b>altera_fir_compiler_ii</b> "<b>fir_compiler_ii_0</b>"]]></message>
   </messages>

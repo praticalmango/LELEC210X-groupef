@@ -19,6 +19,13 @@ static uint32_t packet_cnt = 0;
 
 static volatile int32_t rem_n_bufs = 0;
 
+// Energy tracking for adaptive threshold
+#if (ENERGY_DETECTION_MODE == 1)
+static long long energy_history[LONG_TERM_WINDOW_SIZE];  // Circular buffer for all energies
+static int energy_hist_idx = 0;                            // Current write index
+static int energy_hist_count = 0;                          // Number of valid entries
+#endif
+
 int StartADCAcq(int32_t n_bufs) {
 	rem_n_bufs = n_bufs;
 	cur_melvec = 0;
@@ -59,6 +66,75 @@ static void print_encoded_packet(uint8_t *packet) {
 	DEBUG_PRINT("DF:HEX:%s\r\n", hex_encoded_packet);
 #endif
 }
+
+// Compute sum-of-squares energy of all mel coefficients (uses 64-bit accumulator)
+static long long compute_mel_energy(void) {
+    long long energy = 0;
+    for (size_t i = 0; i < N_MELVECS; i++) {
+        for (size_t j = 0; j < MELVEC_LENGTH; j++) {
+            int32_t v = mel_vectors[i][j];
+            long long sq = (long long)v * (long long)v;
+            energy += sq;
+        }
+    }
+    return energy;
+}
+
+#if (ENERGY_DETECTION_MODE == 1)
+// Compute average energy over the long-term window
+static long long get_longterm_average(void) {
+    if (energy_hist_count == 0) return 0;
+    long long sum = 0;
+    for (int i = 0; i < energy_hist_count; i++) {
+        sum += energy_history[i];
+    }
+    return sum / energy_hist_count;
+}
+
+// Compute average energy over the short-term window (most recent SHORT_TERM_WINDOW_SIZE)
+static long long get_shortterm_average(void) {
+    if (energy_hist_count == 0) return 0;
+    int window_sz = (energy_hist_count < SHORT_TERM_WINDOW_SIZE) ? energy_hist_count : SHORT_TERM_WINDOW_SIZE;
+    long long sum = 0;
+    for (int i = 0; i < window_sz; i++) {
+        int idx = (energy_hist_idx - 1 - i + LONG_TERM_WINDOW_SIZE) % LONG_TERM_WINDOW_SIZE;
+        sum += energy_history[idx];
+    }
+    return sum / window_sz;
+}
+
+// Check if current energy indicates an abnormal event
+static int check_adaptive_threshold(long long current_energy) {
+    // Evaluate first (using OLD history)
+    long long long_avg = get_longterm_average();
+    long long short_avg = get_shortterm_average();
+    float ratio = (long_avg > 0) ? (float)short_avg / (float)long_avg : 0.0f;
+    int send = (current_energy >= ENERGY_MIN_ABSOLUTE) && (ratio > ENERGY_RATIO_THRESHOLD);
+    
+    // Only update history with non-detected packets (don't contaminate baseline with events)
+    if (!send) {
+        energy_history[energy_hist_idx] = current_energy;
+        energy_hist_idx = (energy_hist_idx + 1) % LONG_TERM_WINDOW_SIZE;
+        if (energy_hist_count < LONG_TERM_WINDOW_SIZE) {
+            energy_hist_count++;
+        }
+    } else {
+        DEBUG_PRINT("[Baseline] Event detected - excluding from long-term average\r\n");
+    }
+    
+    if (energy_hist_count < SHORT_TERM_WINDOW_SIZE) {
+        DEBUG_PRINT("[Warmup] E_curr: %ld | E_min: %ld | (count: %d/%d)\r\n",
+                    (long)current_energy, (long)ENERGY_MIN_ABSOLUTE, energy_hist_count, SHORT_TERM_WINDOW_SIZE);
+    } else {
+        DEBUG_PRINT("[Adaptive] E_curr: %ld | L_avg: %ld | S_avg: %ld | Ratio: %.3f (thresh: %.1f) | Min_abs: %ld | %s\r\n",
+                     (long)current_energy, (long)long_avg, (long)short_avg, ratio, ENERGY_RATIO_THRESHOLD,
+                     (long)ENERGY_MIN_ABSOLUTE, send ? "*** SEND ***" : "skip"); 
+    }
+    
+    return send;
+
+}
+#endif
 
 static void encode_packet(uint8_t *packet, uint32_t* packet_cnt) {
 	// BE encoding of each mel coef
@@ -112,7 +188,29 @@ static void ADC_Callback(int buf_cplt) {
 
 	if (rem_n_bufs == 0) {
 		print_spectrogram();
-		send_spectrogram();
+		
+		long long energy = compute_mel_energy();
+		DEBUG_PRINT("[Energy] Total: %ld\r\n", (long)energy);
+		
+	#if (ENERGY_DETECTION_MODE == 0)
+			// Fixed threshold mode
+			DEBUG_PRINT("[Detection] Energy: %ld threshold: %lld\r\n", (long)energy, (long long)ENERGY_THRESHOLD_RAW);
+			if (energy >= ENERGY_THRESHOLD_RAW) {
+				send_spectrogram();
+			} else {
+				DEBUG_PRINT("[Detection] REJECTED - Energy below fixed threshold\r\n");
+			}
+	#elif (ENERGY_DETECTION_MODE == 1)
+			// Adaptive threshold mode: long-term baseline + short-term spike detection
+			if (check_adaptive_threshold(energy)) {
+				send_spectrogram();
+			} else {
+				DEBUG_PRINT("[Detection] REJECTED - Energy below adaptive threshold\r\n");
+			}
+	#else
+			// No detection: always send
+			send_spectrogram();
+	#endif
 	}
 }
 

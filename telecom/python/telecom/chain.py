@@ -1,6 +1,7 @@
 # ruff: noqa: N806
 import numpy as np
 from scipy import signal
+import matplotlib.pyplot as plt
 
 
 BIT_RATE = 50e3
@@ -53,6 +54,44 @@ FPGA_FIR_TAPS = np.array(
 )  # Example coefficients
 
 
+FPGA_FIR_TAPS_1 = np.array([-0.001201261290430126, 0.0020488944185569607, -0.0020751053507837938, 4.910806933254215E-18, 0.004754535968663148, -0.00987450755161552, 0.00995675888032359, -1.4391882903962387E-17, -0.018922538981281996, 0.036214375130954504, -0.03468641976116993, 2.4803862788187382E-17, 0.06848299151299582, -0.15293237705130486, 0.22297239138994396, 0.7505245253702963, 0.22297239138994396, -0.15293237705130486, 0.06848299151299582, 2.4803862788187385E-17, -0.034686419761169936, 0.036214375130954504, -0.018922538981282003, -1.4391882903962393E-17, 0.00995675888032359, -0.009874507551615532, 0.004754535968663151, 4.910806933254215E-18, -0.0020751053507837946, 0.0020488944185569607, -0.001201261290430126])
+
+
+FPGA_FIR_TAPS_2 = np.array(
+    [-0.00099754,  0.0015771,   0.00200687, -0.00304694, -0.00517564,  0.00579822,
+     0.01187695, -0.0094263,  -0.02418915,  0.01331792,  0.04660596, -0.01677282,
+     -0.09503791,  0.01914813,  0.31439014,  0.47985002,  0.31439014,  0.01914813,
+     -0.09503791, -0.01677282,  0.04660596,  0.01331792, -0.02418915, -0.0094263,
+     0.01187695,  0.00579822, -0.00517564, -0.00304694,  0.00200687,  0.0015771,
+     -0.00099754])
+
+
+
+# --- Golay (24, 12) Implementation Details ---
+GOLAY_P_HEX = [0x8ED, 0x476, 0x23B, 0x11D, 0x08E, 0x047, 
+               0x823, 0x411, 0x208, 0x104, 0x082, 0x041]
+
+def _generate_golay_utils():
+    P = np.array([[(x >> i) & 1 for i in range(11, -1, -1)] for x in GOLAY_P_HEX])
+    G = np.hstack((np.eye(12, dtype=int), P))
+    H = np.hstack((P.T, np.eye(12, dtype=int)))
+    
+    # Fast Lookup Table for Error Correction (Up to 3 errors)
+    syndromes = {}
+    # Generate all error patterns with weight <= 3
+    for i in range(25): # 0 to 24 errors
+        indices = [()] if i == 0 else __import__('itertools').combinations(range(24), i)
+        for idx in indices:
+            if i > 3: break 
+            e = np.zeros(24, dtype=int)
+            if idx: e[list(idx)] = 1
+            s = tuple((e @ H.T) % 2)
+            if s not in syndromes: syndromes[s] = e
+        if i == 3: break
+    return G, H, syndromes
+
+G_MAT, H_MAT, SYNDROME_TABLE = _generate_golay_utils()
+
 class Chain:
     name: str = ""
 
@@ -61,18 +100,18 @@ class Chain:
     freq_dev: float = BIT_RATE / 2 # changer en /2 pour augmenter les perfs à fond 
 
     osr_tx: int = 64
-    osr_rx: int = 4
+    osr_rx: int = 8
 
     preamble: np.ndarray = PREAMBLE
     sync_word: np.ndarray = SYNC_WORD
 
-    payload_len: int = 8 * 100  # Number of bits per packet
+    payload_len: int = 8 * 100 + 4  # Number of bits per packet
 
     # Simulation parameters
-    n_packets: int = 200  # Number of sent packets
+    n_packets: int = 500  # Number of sent packets
 
     # Channel parameters
-    sto_val: float = 0
+    sto_val: float = np.nan
     sto_range: float = 10 / BIT_RATE  # defines the delay range when random
 
     cfo_val: float = np.nan
@@ -85,9 +124,12 @@ class Chain:
     EsN0_range: np.ndarray = np.arange(0, 30, 1)
 
     # Lowpass filter parameters
-    taps: np.ndarray = FPGA_FIR_TAPS  # specify None to make the simulator recompute the filter based on below spec
-    numtaps: int = 100
-    cutoff: float = 150e3  # BIT_RATE * osr_rx / 2.0001  # or 2*BIT_RATE,...
+    taps: np.ndarray = None  # specify None to make the simulator recompute the filter based on below spec
+    # taps: np.ndarray = None  # specify None to make the simulator recompute the filter based on below spec
+    numtaps: int = 31
+    cutoff: float = 75e3  # BIT_RATE * osr_rx / 2.0001  # or 2*BIT_RATE,...
+    
+    use_golay: bool = False
 
     # Tx methods
 
@@ -188,10 +230,9 @@ class BasicChain(Chain):
 
     cfo_val, sto_val = np.nan, np.nan  # CFO and STO are random
 
-    ideal_preamble_detect = True
+    ideal_preamble_detect = False
 
-    use_dynamic_ppd = True
-
+    use_dynamic_ppd = False # If false: new ppd, if true: old ppd with dynamic thresholding
     def preamble_detect_ppd(self, y):
         """Detect a preamble computing the received energy (average on a window)."""
         long_term_sum_W = 256
@@ -219,19 +260,158 @@ class BasicChain(Chain):
         )
         return first_idx
 
+    # def preamble_detect(self, y):
+    #     """Detect a preamble computing the received energy (average on a window)."""
+    #     L = 4 * self.osr_rx
+    #     y_abs = np.abs(y)
+
+    #     for i in range(0, int(len(y) / L)):
+    #         sum_abs = np.sum(y_abs[i * L : (i + 1) * L])
+    #         if sum_abs > (L - 1):  # fix threshold
+    #             return i * L
+
+    #     return None
+    
+    
+    
     def preamble_detect(self, y):
-        """Detect a preamble computing the received energy (average on a window)."""
-        L = 4 * self.osr_rx
-        y_abs = np.abs(y)
+        # print("Using correlation-based preamble detection on discriminator output (PPD)")
+        """
+        Detect the preamble in a received CPFSK signal using normalized correlation
+        on the differential phase (FM discriminator output).
 
-        for i in range(0, int(len(y) / L)):
-            sum_abs = np.sum(y_abs[i * L : (i + 1) * L])
-            if sum_abs > (L - 1):  # fix threshold
-                return i * L
+        Parameters
+        ----------
+        y : np.ndarray
+            Received complex baseband signal, shape (N,)
 
-        return None
+        Returns
+        -------
+        int | None
+            Index of the first sample JUST AFTER the detected preamble window,
+            matching the convention of the old detector.
+            Returns None if no detection is found.
+        """
 
-    ideal_cfo_estimation = False
+        y_ = np.asarray(y)
+        ylen = len(y_)
+
+        if ylen < 2:
+            self.last_corr_norm = np.zeros(ylen, dtype=np.float64)
+            self.last_disc = np.zeros(max(0, ylen - 1), dtype=np.float64)
+            return None
+
+        if not np.iscomplexobj(y_):
+            y_ = y_.astype(np.complex64) + 0j
+        else:
+            y_ = y_.astype(np.complex64, copy=False)
+
+        # Parameters
+        R = int(self.osr_rx)                 # samples per symbol at RX
+        pre_bits = np.asarray(self.preamble, dtype=np.int8)
+        pre_bits = pre_bits[:16]
+        corr_threshold = float(getattr(self, "corr_threshold", 0.58))
+        require_peak = bool(getattr(self, "corr_require_peak", True))
+
+        if R <= 0 or pre_bits.size == 0:
+            self.last_corr_norm = np.zeros(ylen, dtype=np.float64)
+            self.last_disc = np.zeros(max(0, ylen - 1), dtype=np.float64)
+            return None
+
+        # ------------------------------------------------------------
+        # 1) FM discriminator / differential phase
+        #    dphi[n] corresponds to transition between y[n] and y[n+1]
+        # ------------------------------------------------------------
+        dphi = np.angle(y_[1:] * np.conjugate(y_[:-1])).astype(np.float64)
+
+        # Remove average to reduce CFO bias
+        dphi = dphi - np.mean(dphi)
+
+        self.last_disc = dphi.copy()
+
+        # ------------------------------------------------------------
+        # 2) Build reference in discriminator domain
+        #    bit 0 -> -1, bit 1 -> +1, repeated R times
+        #    Since dphi has one sample less than y, ref length is Np - 1
+        # ------------------------------------------------------------
+        ref_bits_pm = (2 * pre_bits - 1).astype(np.float64)   # 0/1 -> -1/+1
+        ref = np.repeat(ref_bits_pm, R)
+
+        # dphi over a preamble of Np IQ samples has length Np - 1
+        ref = ref[:-1]
+
+        # remove DC bias
+        ref = ref - np.mean(ref)
+
+        ref_energy = np.dot(ref, ref)
+        if ref_energy <= 1e-15:
+            self.last_corr_norm = np.zeros(ylen, dtype=np.float64)
+            return None
+
+        L = len(ref)   # = len(pre_bits)*R - 1
+
+        if len(dphi) < L:
+            self.last_corr_norm = np.zeros(ylen, dtype=np.float64)
+            return None
+
+        # ------------------------------------------------------------
+        # 3) Normalized sliding correlation on dphi
+        #    Window start = k in dphi
+        # ------------------------------------------------------------
+        c_valid = np.convolve(dphi, ref[::-1], mode="valid")
+        seg_energy = np.convolve(dphi * dphi, np.ones(L, dtype=np.float64), mode="valid")
+
+        eps = 1e-12
+        val_valid = np.abs(c_valid) / np.sqrt((seg_energy + eps) * (ref_energy + eps))
+
+        # Store a debug array aligned with y end indices
+        corr_norm = np.zeros(ylen, dtype=np.float64)
+
+        # For a dphi window starting at k:
+        # - dphi window ends at k + L - 1
+        # - corresponding y window ends at k + L
+        end_idx_y = np.arange(L, ylen, dtype=np.int64)
+        corr_norm[end_idx_y] = val_valid
+        self.last_corr_norm = corr_norm
+
+        # ------------------------------------------------------------
+        # 4) Detection rule
+        #    Prefer first local peak above threshold.
+        #    Fallback: first threshold crossing.
+        # ------------------------------------------------------------
+        above = np.flatnonzero(val_valid >= corr_threshold)
+        if above.size == 0:
+            return None
+
+        if require_peak:
+            last = len(val_valid) - 1
+            peaks = []
+            for k in above:
+                left_ok = (k == 0) or (val_valid[k] >= val_valid[k - 1])
+                right_ok = (k == last) or (val_valid[k] > val_valid[k + 1])
+                if left_ok and right_ok:
+                    peaks.append(k)
+
+            if len(peaks) > 0:
+                k_det = int(peaks[0])     # first detected local peak
+            else:
+                k_det = int(above[0])     # fallback
+        else:
+            k_det = int(above[0])
+
+        # ------------------------------------------------------------
+        # 5) Return convention
+        #    If preamble starts at sample k_det in y and spans len(pre_bits)*R samples,
+        #    return the first sample just AFTER the preamble.
+        # ------------------------------------------------------------
+        first_idx = int(k_det + len(pre_bits) * R)
+
+        if first_idx >= ylen:
+            return None
+
+        return first_idx
+
+    ideal_cfo_estimation = True
     
     # def cfo_estimation(self, y):
     #     """Estimates CFO using Moose algorithm, on first samples of preamble."""
@@ -276,242 +456,64 @@ class BasicChain(Chain):
     
 
 
-    ideal_sto_estimation = False
+    ideal_sto_estimation = True
 
-    # def sto_estimation(self, y):
-    #     """Estimates symbol timing (fractional) based on phase shifts."""
-    #     R = self.osr_rx
+    def sto_estimation(self, y):
+        """Estimates symbol timing (fractional) based on phase shifts."""
+        R = self.osr_rx
 
-    #     # Computation of derivatives of phase function
-    #     phase_function = np.unwrap(np.angle(y))
-    #     phase_derivative_1 = phase_function[1:] - phase_function[:-1]
-    #     phase_derivative_2 = np.abs(phase_derivative_1[1:] - phase_derivative_1[:-1])
+        # Computation of derivatives of phase function
+        phase_function = np.unwrap(np.angle(y))
+        phase_derivative_1 = phase_function[1:] - phase_function[:-1]
+        phase_derivative_2 = np.abs(phase_derivative_1[1:] - phase_derivative_1[:-1])
 
-    #     sum_der_saved = -np.inf
-    #     save_i = 0
-    #     for i in range(0, R):
-    #         sum_der = np.sum(phase_derivative_2[i::R])  # Sum every R samples
+        sum_der_saved = -np.inf
+        save_i = 0
+        for i in range(0, R):
+            sum_der = np.sum(phase_derivative_2[i::R])  # Sum every R samples
 
-    #         if sum_der > sum_der_saved:
-    #             sum_der_saved = sum_der
-    #             save_i = i
+            if sum_der > sum_der_saved:
+                sum_der_saved = sum_der
+                save_i = i
+                
+        # print(f"sto est = {np.mod(save_i, R)}")
 
-    #     return np.mod(save_i + 1, R)
+        return np.mod(save_i + 1, R)
     
     
-    barker_pattern = np.array([int(bit) for bit in "11100010010"])
-
+   
     
-    # def sto_estimation(self, y, known_preamble_bits=barker_pattern):
-    #     """
-    #     Estimates timing by correlating instantaneous frequency with a known preamble.
-        
-    #     Args:
-    #         y: Received complex signal
-    #         known_preamble_bits: List or array of bits, e.g., [1, 0, 1, 0]
-    #     """
-    #     R = self.osr_rx
-        
-    #     # Create the reference pattern JUST for the Barker part
-        
-    #     # 1. Get Instantaneous Frequency of received signal
-    #     # (Same as before - demodulate to baseband)
-    #     phase_function = np.unwrap(np.angle(y))
-    #     rx_freq = np.diff(phase_function)
-        
-    #     # 2. Generate the "Ideal" Preamble Waveform
-    #     # Map bits 0 -> -1 and 1 -> +1 (or whatever your modulation index implies)
-    #     # Then repeat each bit R times to match the oversampling rate.
-    #     # Note: If you use Gaussian FSK (GFSK), apply a Gaussian filter to this `tx_ref`.
-    #     tx_syms = 2 * np.array(known_preamble_bits) - 1 # Map [0,1] to [-1, 1]
-    #     tx_ref = np.repeat(tx_syms, R)
-        
-    #     # 3. Perform Cross-Correlation (Convolution)
-    #     # "valid" mode means we only compute overlaps where the signals fully align
-    #     correlation = signal.correlate(rx_freq, tx_ref, mode='valid')
-        
-    #     # 4. Find the peak
-    #     # The index of the max value is the start of the preamble
-    #     peak_index = np.argmax(np.abs(correlation))
-        
-    #     # If you just need the fractional offset within a symbol:
-    #     fractional_offset = np.mod(peak_index, R)
-        
-    #     return fractional_offset
-    
-    
-    # def sto_estimation(self, y, known_preamble_bits=barker_pattern):
-    #     """
-    #     Estimates timing by correlating instantaneous frequency with a known preamble.
-    #     Optimized to search only a limited window.
-    #     """
-    #     R = self.osr_rx
-        
-    #     # --- OPTIMIZATION: Define Search Window ---
-    #     # We expect the preamble to start within the first 'N' symbols.
-    #     # Let's say we search over a window of:
-    #     # Length of Preamble + Max Expected Delay (e.g., 50 symbols)
-    #     # If the buffer 'y' is huge, this saves massive computation.
-        
-    #     # Length of the pattern we are looking for
-    #     L_pattern = len(known_preamble_bits) * R
-        
-    #     # Search margin: How late can the packet arrive? (e.g., 100 symbols late)
-    #     margin_symbols = 100 
-    #     search_len = L_pattern + (margin_symbols * R)
-        
-    #     # Safety check: Don't slice more than we have
-    #     search_len = min(search_len, len(y))
-        
-    #     # Slice the signal to just the search window
-    #     y_search = y[:search_len]
-
-    #     # 1. Get Instantaneous Frequency of the SEARCH WINDOW only
-    #     phase_function = np.unwrap(np.angle(y_search))
-    #     rx_freq = np.diff(phase_function)
-        
-    #     # 2. Generate the "Ideal" Preamble Waveform
-    #     tx_syms = 2 * np.array(known_preamble_bits) - 1
-    #     tx_ref = np.repeat(tx_syms, R)
-        
-    #     # 3. Perform Cross-Correlation
-    #     correlation = signal.correlate(rx_freq, tx_ref, mode='valid')
-        
-    #     # 4. Find the peak
-    #     # This index is relative to the start of 'y'
-    #     peak_index = np.argmax(np.abs(correlation))
-        
-    #     # --- CRITICAL UNDERSTANDING ---
-    #     # 'peak_index' is the start of the Barker code in your buffer.
-    #     # To get the start of the PAYLOAD, you usually need:
-    #     # payload_start_index = peak_index + len(tx_ref)
-        
-    #     # For STO (fractional timing):
-    #     fractional_offset = np.mod(peak_index, R)
-        
-    #     # You likely want to return the integer offset too!
-    #     # return fractional_offset, peak_index
-    #     return fractional_offset
-    
-    # def sto_estimation(self, y): #version avec dérivée
-    #     """
-    #     Estimates fractional timing offset using the 'Dotting' (1010...) part of the preamble.
-    #     Uses Differential Correlation which is more robust to noise than raw phase derivatives.
-    #     """
-    #     R = self.osr_rx
-        
-    #     # 1. Focus on the "Dotting" part of the preamble
-    #     # The preamble starts with "1010..." (21 bits). 
-    #     # We take a safe window (e.g., first 16 bits) to avoid hitting the Barker code edge.
-    #     n_dotting_bits = 16 
-    #     search_len = n_dotting_bits * R
-        
-    #     # Safety: ensure we have enough samples
-    #     if len(y) < search_len:
-    #         search_len = len(y)
-        
-    #     y_segment = y[:search_len]
-        
-    #     # 2. Compute "Delay-and-Multiply" (Differential Detection)
-    #     # This converts FSK tones into a complex DC-like signal where:
-    #     # bit 1 (+f) -> rotates pos, bit 0 (-f) -> rotates neg.
-    #     # This avoids 'np.unwrap' and 'np.diff' which are unstable in noise.
-    #     discriminator_out = y_segment[1:] * np.conj(y_segment[:-1])
-        
-    #     # 3. Create the Reference for "1010..." pattern
-    #     # In delay-and-multiply domain:
-    #     # Symbol '1' (freq +h) -> exp(j * sensitivity)
-    #     # Symbol '0' (freq -h) -> exp(-j * sensitivity)
-    #     # We don't need exact sensitivity, just the sign pattern: +1, -1.
-        
-    #     # Create pattern: 1, 0, 1, 0... mapped to +1, -1
-    #     # (Assuming the preamble starts with 1. If it starts with 0, just flip sign or take abs)
-    #     dotting_bits = np.resize([1, 0], n_dotting_bits) 
-    #     tx_syms = 2 * dotting_bits - 1 # [+1, -1, +1, -1...]
-        
-    #     # Upsample to match OSR (repeat each symbol R times)
-    #     # Note: We use R-1 because 'discriminator_out' is length N-1
-    #     # But for correlation shape matching, standard R is fine.
-    #     ref_pattern = np.repeat(tx_syms, R)
-        
-    #     # Trim ref to match discriminator output length if needed
-    #     ref_pattern = ref_pattern[:len(discriminator_out)]
-        
-    #     # 4. Cross-Correlate
-    #     # We look for the alignment of the 1010 square wave
-    #     # We use the Real part because we expect the phase rotation direction to match
-    #     correlation = np.abs(signal.correlate(np.angle(discriminator_out), ref_pattern, mode='valid'))
-        
-    #     # 5. Find the Peak
-    #     peak_index = np.argmax(correlation)
-        
-    #     # 6. Return Fractional Offset
-    #     # We only care about the offset modulo R to align the symbol grid.
-    #     # The Frame Sync (in simulate.py) will handle the integer symbol shifts.
-    #     return np.mod(peak_index, R)
-    
-    def sto_estimation(self, y): #version avec oerder Meyr
-        """
-        Estimates fractional timing offset using the 'Dotting' (1010...) preamble.
-        Uses the Oerder-Meyr (Squaring) method to recover the symbol clock tone.
-        """
+    # ! utiliser ce truc là, bonnes perfs et on garde le même preambule
+    def sto_estimation(self, y):
         R = self.osr_rx
         
-        # 1. Select the Preamble Window
-        # We know the first 32 bits are 101010...
-        # We take the first 24 bits to be safe and avoid edge effects with the Sync Word.
-        n_bits_to_use = 24
-        window_len = n_bits_to_use * R
+        search_len = 32 * R
+        y_segment = y[:search_len]
         
-        # Safety check
-        if len(y) < window_len:
-            window_len = len(y)
-            
-        y_segment = y[:window_len]
+        # print(f"y segment = {y_segment}")
         
-        # 2. Compute the Signal Magnitude (Non-linearity)
-        # For MSK/FSK, the instantaneous frequency is a PAM signal.
-        # We approximate the 'energy' of the transition by taking the absolute value 
-        # of the differentiated phase.
-        phase_function = np.unwrap(np.angle(y_segment))
-        inst_freq = np.diff(phase_function)
+        discriminator_out = y_segment[1:] * np.conj(y_segment[:-1])
+        disc_phase = np.angle(discriminator_out)
+
+        n_template_bits = 16 # 12 taille opti pour RMSE
+        dotting_bits = np.resize([1, 0], n_template_bits) 
+        tx_syms = 2 * dotting_bits - 1
+        ref_pattern = np.repeat(tx_syms, R)
+
+
+
+        correlation = signal.correlate(disc_phase, ref_pattern, mode='valid')
         
-        # Taking the absolute value of the frequency creates a strong tone at the Symbol Rate.
-        # (Because 1010... creates a square wave +f, -f, +f, -f. Abs value makes it +f, +f...)
-        # Wait, actually for STO on 1010..., the squared magnitude of the *signal* is constant.
-        # For FSK STO, we want to look at the *Instantaneous Frequency* periodicity.
+        # 5. Find the Peak
+        # The peak index represents the best alignment point
+        peak_index = np.argmax(np.abs(correlation))
         
-        # Refined Oerder-Meyr for CPFSK:
-        # We want to find the phase of the clock component in the envelope.
-        # Simple approach: Correlate the Instantaneous Freq with a local 1010 clock.
-        
-        # Create a local clock reference (1, -1, 1, -1...) matched to OSR
-        # We construct a sine wave at the symbol rate 1/T.
-        t = np.arange(len(inst_freq))
-        # The '1010' pattern has a fundamental frequency of 1/(2T). 
-        # But we want to lock to the symbol boundaries.
-        
-        # Let's stick to the Robust Correlation method (Delay-and-Multiply)
-        # It is strictly better than the derivative method you had.
-        
-        # Map 1010... to +1, -1...
-        ref_bits = np.resize([1, 0], n_bits_to_use)
-        ref_seq = 2 * ref_bits - 1 # +1, -1, +1, -1
-        ref_waveform = np.repeat(ref_seq, R)
-        
-        # Truncate to match diff length
-        ref_waveform = ref_waveform[:len(inst_freq)]
-        
-        # Correlate Instantaneous Frequency with Expected Frequency Pattern
-        # We align the received +/- frequency shifts with our expected +/- shifts.
-        corr = np.abs(signal.correlate(inst_freq, ref_waveform, mode='valid'))
-        
-        # Find the peak
-        best_idx = np.argmax(corr)
-        
-        # The peak index tells us where the pattern aligns.
-        # We only need the fractional part modulo R.
-        return np.mod(best_idx, R)
+        # 6. Return Fractional Offset
+        # This tells us where the symbol boundary is relative to our first sample
+        # print(f"sto est = {np.mod(peak_index, R)}")
+        return np.mod(peak_index, R)
+    
+   
     
     
     
@@ -562,3 +564,44 @@ class BasicChain(Chain):
         bits_hat = np.where(np.abs(r1) > np.abs(r0), 1, 0)
 
         return bits_hat
+    
+    
+    
+    def golay_encode_if_enabled(self, bits):
+        """Encodes bits only if use_golay is True."""
+        if not self.use_golay:
+            return bits
+        
+        # Ensure length is multiple of 12 for Golay (24,12)
+        padding_len = (12 - (len(bits) % 12)) % 12
+        if padding_len > 0:
+            bits = np.concatenate([bits, np.zeros(padding_len, dtype=int)])
+            
+        reshaped = bits.reshape(-1, 12)
+        encoded = (reshaped @ G_MAT) % 2
+        return encoded.flatten()
+
+    def golay_decode_if_enabled(self, bits, original_len):
+        """Decodes and corrects bits only if use_golay is True."""
+        if not self.use_golay:
+            return bits[:original_len]
+        
+        # Safety check: if bits is empty or too short for one block
+        if bits is None or len(bits) < 24:
+            return np.zeros(original_len, dtype=int) # Return zeros to avoid crash
+        
+        n_blocks = len(bits) // 24
+        reshaped = bits[:n_blocks*24].reshape(n_blocks, 24)
+        decoded_list = []
+
+        for block in reshaped:
+            s = tuple((block @ H_MAT.T) % 2)
+            error_pattern = SYNDROME_TABLE.get(s, np.zeros(24, dtype=int))
+            corrected = (block + error_pattern) % 2
+            decoded_list.append(corrected[:12])
+            
+        if not decoded_list: # Final check before concatenation
+            return np.zeros(original_len, dtype=int)
+            
+        decoded = np.concatenate(decoded_list)
+        return decoded[:original_len]
