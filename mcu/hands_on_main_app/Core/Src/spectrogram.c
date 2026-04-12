@@ -4,7 +4,7 @@
  *  Created on: Jun 4, 2021
  *      Author: math
  */
-
+/*
 #include <stdio.h>
 #include "spectrogram.h"
 #include "spectrogram_tables.h"
@@ -127,4 +127,77 @@ void Spectrogram_Compute(q15_t *samples, q15_t *melvec)
 	arm_mat_init_q15(&melvec_inst, MELVEC_LENGTH, 1, melvec);
 
 	arm_mat_mult_fast_q15(&hz2mel_inst, &fftmag_inst, &melvec_inst, buf_tmp);
+}*/
+
+
+#include <stdio.h>
+#include "spectrogram.h"
+#include "spectrogram_tables.h"
+#include "config.h"
+#include "utils.h"
+#include "arm_absmax_q15.h"
+#include "arm_math.h"
+
+q15_t buf    [  SAMPLES_PER_MELVEC  ];
+q15_t buf_fft[2*SAMPLES_PER_MELVEC  ];
+
+// Pre-calculated non-zero bounds for each of the 20 MEL bins
+// Format: {start_index, length_of_non_zero_block}
+static const uint16_t mel_bounds[20][2] = {
+    {1, 11},   {6, 12},   {12, 12},  {18, 12},  {24, 12},
+    {30, 12},  {36, 11},  {42, 12},  {47, 14},  {54, 16},
+    {61, 19},  {70, 22},  {80, 24},  {91, 28},  {103, 31},
+    {117, 35}, {133, 38}, {150, 43}, {170, 48}, {193, 63}
+};
+
+void Spectrogram_Format(q15_t *buf)
+{
+    arm_shift_q15(buf, 3, buf, SAMPLES_PER_MELVEC);
+    for(uint16_t i=0; i < SAMPLES_PER_MELVEC; i++) {
+        buf[i] -= (1 << 14);
+    }
+}
+
+void Spectrogram_Compute(q15_t *samples, q15_t *melvec)
+{
+    // STEP 1 & 2: Windowing and FFT
+    arm_mult_q15(samples, hamming_window, buf, SAMPLES_PER_MELVEC);
+    arm_rfft_instance_q15 rfft_inst;
+    arm_rfft_init_q15(&rfft_inst, SAMPLES_PER_MELVEC, 0, 1);
+    arm_rfft_q15(&rfft_inst, buf, buf_fft);
+
+    // STEP 3: Magnitude and Normalization
+    q15_t vmax;
+    uint32_t pIndex=0;
+    arm_absmax_q15(buf_fft, SAMPLES_PER_MELVEC, &vmax, &pIndex);
+
+    for (int i=0; i < SAMPLES_PER_MELVEC; i++) {
+        buf[i] = (q15_t) (((q31_t) buf_fft[i] << 15) /((q31_t)vmax));
+    }
+
+    arm_cmplx_mag_q15(buf, buf, SAMPLES_PER_MELVEC/2);
+
+    for (int i=0; i < SAMPLES_PER_MELVEC/2; i++) {
+        buf[i] = (q15_t) ((((q31_t) buf[i]) * ((q31_t) vmax) ) >> 15 );
+    }
+
+    // STEP 4: Optimized Sparse MEL Transform
+    // We only perform dot products on the non-zero slices of the matrix.
+    // This uses the ASM-optimized arm_dot_prod_q15 for maximum speed.
+
+    for (uint16_t i = 0; i < MELVEC_LENGTH; i++) {
+        q63_t dot_result;
+        uint16_t start  = mel_bounds[i][0];
+        uint16_t length = mel_bounds[i][1];
+
+        // Offset into the flat hz2mel_mat: row_index * 256 + start_index
+        q15_t *matrix_row_ptr = &hz2mel_mat[(i << 8) + start];
+        q15_t *buffer_ptr     = &buf[start];
+
+        arm_dot_prod_q15(matrix_row_ptr, buffer_ptr, length, &dot_result);
+
+        // arm_dot_prod_q15 returns a q63_t result (sum of 15.16 products).
+        // We shift right by 15 to get back to Q15 and saturate.
+        melvec[i] = (q15_t)__SSAT((dot_result >> 15), 16);
+    }
 }

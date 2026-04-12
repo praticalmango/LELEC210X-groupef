@@ -93,23 +93,21 @@ static void acquire_and_send_packet() {
 	}
 }
 
-void run(void)
+/*void run(void)
 {
-	btn_press = 1;
+	btn_press = 0;
 
 	while (1)
 	{
 	  while (!btn_press) {
-		  //HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_SET);
 		  HAL_Delay(200);
 		  HAL_GPIO_WritePin(GPIOB, LD2_Pin, GPIO_PIN_RESET);
 		  HAL_Delay(200);
 	  }
 	  btn_press = 0;
 #if (CONTINUOUS_ACQ == 1)
-	  //while (!btn_press) {
-		  while (1) {
+	  while (!btn_press) {
 		  acquire_and_send_packet();
 	  }
 	  btn_press = 0;
@@ -119,6 +117,34 @@ void run(void)
 #error "Wrong value for CONTINUOUS_ACQ."
 #endif
 	}
+}*/
+
+void run(void)
+{
+    // Ensure button state is cleared at start
+    btn_press = 0;
+
+    while (1)
+    {
+        /* * The loop that previously blinked LD2 and waited for a
+         * button press has been removed to allow immediate execution.
+         */
+
+#if (CONTINUOUS_ACQ == 1)
+        // Starts acquiring immediately.
+        // If the button is pressed, it will break this loop,
+        // reset btn_press, and then immediately restart.
+        while (!btn_press) {
+            acquire_and_send_packet();
+        }
+        btn_press = 0;
+#elif (CONTINUOUS_ACQ == 0)
+        // Performs a single acquisition and loops immediately.
+        acquire_and_send_packet();
+#else
+#error "Wrong value for CONTINUOUS_ACQ."
+#endif
+    }
 }
 
 /* USER CODE END 0 */
