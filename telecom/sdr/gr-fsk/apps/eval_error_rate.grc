@@ -296,6 +296,18 @@ blocks:
     coordinate: [944, 164.0]
     rotation: 0
     state: true
+- name: payload_len_hamming
+  id: variable
+  parameters:
+    comment: ''
+    value: '121'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [504, 108.0]
+    rotation: 0
+    state: enabled
 - name: rx_gain
   id: variable
   parameters:

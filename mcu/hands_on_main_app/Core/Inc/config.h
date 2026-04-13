@@ -11,7 +11,7 @@
 #define MAIN_APP 0
 #define EVAL_RADIO 1
 
-#define RUN_CONFIG MAIN_APP
+#define RUN_CONFIG EVAL_RADIO
 
 // Radio parameters
 #define ENABLE_RADIO 1
@@ -49,7 +49,7 @@
 // Enable performance measurements
 #define PERF_COUNT 0
 
-#define USE_HAMMING 1
+#define USE_HAMMING 0
 
 // Enable debug print
 #define DEBUGP 0
