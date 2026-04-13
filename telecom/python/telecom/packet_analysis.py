@@ -89,4 +89,5 @@ packets_250 = [packet_1, packet_2, packet_3]
 
 
 
-analyze_fsk_errors(packets_250,num_values=250)
+# analyze_fsk_errors(packets_250,num_values=250)
+analyze_fsk_errors(packets,num_values=100)

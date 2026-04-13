@@ -49,6 +49,8 @@
 // Enable performance measurements
 #define PERF_COUNT 0
 
+#define USE_HAMMING 1
+
 // Enable debug print
 #define DEBUGP 0
 
