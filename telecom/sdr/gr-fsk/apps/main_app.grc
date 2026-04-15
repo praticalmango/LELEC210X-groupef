@@ -287,12 +287,36 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: spectrogram_len+24
+    value: payload_len_hamming
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
     coordinate: [1056, 20.0]
+    rotation: 0
+    state: true
+- name: payload_len_hamming
+  id: variable
+  parameters:
+    comment: ''
+    value: '985'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [904, 156.0]
+    rotation: 0
+    state: true
+- name: payload_len_no_hamming
+  id: variable
+  parameters:
+    comment: ''
+    value: '824'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [896, 212.0]
     rotation: 0
     state: true
 - name: rx_gain

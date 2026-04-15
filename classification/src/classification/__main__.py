@@ -94,10 +94,10 @@ def main(
             payload = payload[len(PRINT_PREFIX) :]
 
             melvecs = payload_to_melvecs(payload, melvec_length, n_melvecs)
-            logger.info(f"Parsed payload into Mel vectors: {melvecs}")
+            # logger.info(f"Parsed payload into Mel vectors: {melvecs}")
             
-            print(f"m is {m}")
-            print(f"melvecs is of size {len(melvecs)}")
+            # print(f"m is {m}")
+            # print(f"melvecs is of size {len(melvecs)}")
             # print(melvecs)
             
             
@@ -117,8 +117,8 @@ def main(
                 # if total_energy > 0.0008:
                 
                 guess = "fire"
-                print(f"guessing")
-                logger.info(f"Guessed label:")
+                # print(f"guessing")
+                logger.info(f"Guessed label: {guess}")
 
                 if submit:
                     print(f"submitting")
@@ -132,3 +132,9 @@ def main(
                         logger.info(response_as_dict)
                     else:
                         logger.error(response_as_dict)
+                        
+                    print("----------------------------------------------------------------")
+                    
+                        
+        else:
+            logger.warning(f"Received payload without expected prefix: {payload}")
